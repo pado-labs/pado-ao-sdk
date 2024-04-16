@@ -1,0 +1,54 @@
+{
+  "name": "pado-ao-sdk",
+  "version": "0.1.0",
+  "description": "pado-ao-sdk",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pado-labs/pado-ao-sdk.git"
+  },
+  "sideEffects": false,
+  "type": "module",
+  "exports": {
+    ".": {
+      "browser": "./dist/browser.js",
+      "import": "./dist/index.js",
+      "default": "./dist/index.js"
+    },
+    "./browser": "./dist/browser.js"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "browser": "./dist/browser.js",
+  "types": "./dist/index.d.ts",
+  "typesVersions": {
+    "*": {
+      "browser": [
+        "./dist/index.d.ts"
+      ],
+      ".": [
+        "./dist/index.d.ts"
+      ]
+    }
+  },
+  "files": [
+    "./dist"
+  ],
+  "scripts": {
+    "build": "npm run build:types && npm run build:src",
+    "build:src": "node esbuild.js",
+    "build:types": "tsc src/index.js --skipLibCheck --declaration --allowJs --emitDeclarationOnly --outDir dist",
+    "test": "node --test ./src",
+    "pretest:integration": "npm run build && npm link",
+    "test:integration": "cd ./test/e2e && npm test"
+  },
+  "dependencies": {
+    "@permaweb/aoconnect": "^0.0.51"
+  },
+  "devDependencies": {
+    "esbuild": "^0.20.1",
+    "typescript": "^5.4.2"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
