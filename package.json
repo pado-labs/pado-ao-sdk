@@ -8,28 +8,8 @@
   },
   "sideEffects": false,
   "type": "module",
-  "exports": {
-    ".": {
-      "browser": "./dist/browser.js",
-      "import": "./dist/index.js",
-      "default": "./dist/index.js"
-    },
-    "./browser": "./dist/browser.js"
-  },
   "main": "./dist/index.js",
-  "module": "./dist/index.js",
-  "browser": "./dist/browser.js",
   "types": "./dist/index.d.ts",
-  "typesVersions": {
-    "*": {
-      "browser": [
-        "./dist/index.d.ts"
-      ],
-      ".": [
-        "./dist/index.d.ts"
-      ]
-    }
-  },
   "files": [
     "./dist"
   ],
