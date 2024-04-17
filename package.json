@@ -14,10 +14,10 @@
     "./dist"
   ],
   "scripts": {
-    "build": "npm run build:types && npm run build:src",
-    "build:src": "node esbuild.js",
-    "build:types": "tsc src/index.js --skipLibCheck --declaration --allowJs --emitDeclarationOnly --outDir dist",
+    "build": "rm -rf dist && tsc --build tsconfig.json",
     "test": "node --test ./src",
+    "lint": "eslint -c .eslintrc --ext .ts src",
+    "format": "prettier --check --write src/**/*.ts  --config .prettierrc",
     "pretest:integration": "npm run build && npm link",
     "test:integration": "cd ./test/e2e && npm test"
   },
@@ -25,10 +25,17 @@
     "@permaweb/aoconnect": "^0.0.51"
   },
   "devDependencies": {
-    "esbuild": "^0.20.1",
-    "typescript": "^5.4.2"
-  },
-  "engines": {
-    "node": ">=18"
+    "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
+    "@types/node": "^20.12.7",
+    "@typescript-eslint/eslint-plugin": "^7.7.0",
+    "@typescript-eslint/parser": "^7.7.0",
+    "eslint": "^8.56.0",
+    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-prefer-arrow": "^1.2.3",
+    "prettier": "^3.2.5",
+    "prettier-package-json": "^2.8.0",
+    "ts-node": "^10.9.2",
+    "tslib": "^2.6.2",
+    "typescript": "^5.4.5"
   }
 }
