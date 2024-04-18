@@ -1,5 +1,4 @@
 
-
 export const uploadData = async (data: Uint8Array, dataTag: string, owner: string, price: string) => {
     // 1. get pado node public key
     // 2. invoke algorithm encrypt
