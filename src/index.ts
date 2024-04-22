@@ -3,13 +3,14 @@ import {
     message,
     createDataItemSigner,
   } from "@permaweb/aoconnect";
+import { encrypt, keygen } from "./algorithm";
 
 import { readFileSync } from "node:fs";
 
 const NODEREGISTRY_PROCESS_ID = "lsVh9GO7pzFXcFEuAfw7l_9WU7KAAqTRkU0kVH0lx2g";
 
 /**
- * Encrypt data and upload
+ * Encrypt data and upload data
  *
  * @param data - plain data need to encrypt and upload
  * @param dataTag - the data meta info
@@ -18,7 +19,7 @@ const NODEREGISTRY_PROCESS_ID = "lsVh9GO7pzFXcFEuAfw7l_9WU7KAAqTRkU0kVH0lx2g";
  * @returns The uploaded encrypted data id
  *
  */
-export const uploadData = async (/*data: Uint8Array, dataTag: string, */signer: any/*, price: string*/) => {
+export const uploadData = async (data: Uint8Array, dataTag: string, signer: any, price: string) => {
     // 1. get pado node public key
     // 2. invoke algorithm encrypt
     // 3. upload encrypted data to AR
@@ -34,6 +35,7 @@ export const uploadData = async (/*data: Uint8Array, dataTag: string, */signer: 
         // A signer function used to build the message "signature"
         signer: signer,
       });
+    console.log("msgId=", msgId);
     let { Messages } = await result({
         // the arweave TXID of the message
         message: msgId,
@@ -42,6 +44,15 @@ export const uploadData = async (/*data: Uint8Array, dataTag: string, */signer: 
       });
     const nodes = Messages[0].Data;
     console.log("nodes=", nodes);
+
+    console.log("test data dataTag price=", data, dataTag, price);
+
+    const node1Pubkey = keygen().pk;
+    const node2Pubkey = keygen().pk;
+    const node3Pubkey = keygen().pk;
+    //console.log("test nodePubkey=", node1Pubkey, node2Pubkey, node3Pubkey);
+    const res = encrypt([node1Pubkey, node2Pubkey, node3Pubkey], data);
+    console.log("res=", res);
 }
 
 /*export const listData = async () => {
@@ -63,22 +74,10 @@ export const SubmitTaskAndGetResult = async (dataId: string, publicKey: string) 
     
 }*/
 
-function test() {
+async function test() {
     const wallet = JSON.parse(
         readFileSync("/Users/fksyuan/.aos.json").toString(),
     );
-    uploadData(createDataItemSigner(wallet));
+    uploadData(new Uint8Array([1,2,3]), "test", createDataItemSigner(wallet), "1");
 }
 test();
-
-/*async function getTest() {
-    let { Messages, Spawns, Output, Error } = await result({
-        // the arweave TXID of the message
-        message: "ri_NM3HYd3rwdQ2r67F0oR8D2fEeEERZGUPDsMFHpYs",
-        // the arweave TXID of the process
-        process: NODEREGISTRY_PROCESS_ID,
-      });
-    console.log(Messages, Spawns, Output, Error);
-}
-
-getTest();*/
