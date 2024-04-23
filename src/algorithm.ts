@@ -27,7 +27,6 @@ export const encrypt = (publicKeys: string[],
     let param_obj = threshold;
     param_obj.node_pks = publicKeys;
     param_obj.msg = Array.from(data);
-    console.log("encrypt param_obj.msg", param_obj.msg);
     return lhe_call(lhe._encrypt, param_obj); 
 }
 

@@ -1,8 +1,9 @@
 import {
     createDataItemSigner,
   } from "@permaweb/aoconnect";
-import { encrypt, keygen } from "./algorithm";
+import { encrypt, /*keygen*/ } from "./algorithm";
 import { nodes } from "./processes/noderegistry";
+import { register as dataRegister, allData } from "./processes/dataregistry";
 
 import { readFileSync } from "node:fs";
 
@@ -23,17 +24,22 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     // 4. register encrypted keys and ar data url to ao data process
     // 5. return data id
 
-    const nodesres = await nodes(signer);
-    console.log("nodes=", nodesres);
-
+    let nodesres = await nodes(signer);
+    nodesres = JSON.parse(nodesres);
     console.log("test data dataTag price=", data, dataTag, price);
 
-    const node1Pubkey = keygen().pk;
-    const node2Pubkey = keygen().pk;
-    const node3Pubkey = keygen().pk;
-    //console.log("test nodePubkey=", node1Pubkey, node2Pubkey, node3Pubkey);
-    const res = encrypt([node1Pubkey, node2Pubkey, node3Pubkey], data);
+    let nodesPublicKey = [nodesres["testnode1"].publickey,
+    nodesres["testnode2"].publickey, nodesres["testnode3"].publickey];
+    const res = encrypt(nodesPublicKey, data);
     console.log("res=", res);
+
+    const encSksStr = JSON.stringify(res.enc_sks);
+    //console.log("encSksStr=", encSksStr);
+    const dataRes = await dataRegister(dataTag,
+      price, encSksStr, res.nonce, res.enc_msg, signer);
+    console.log("dataRes=", dataRes);
+    const allDataRes = await allData(signer);
+    console.log("allDataRes=", allDataRes);
 }
 
 /*export const listData = async () => {
