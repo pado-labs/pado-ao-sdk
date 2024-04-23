@@ -1,13 +1,10 @@
 import {
-    result,
-    message,
     createDataItemSigner,
   } from "@permaweb/aoconnect";
 import { encrypt, keygen } from "./algorithm";
+import { nodes } from "./processes/noderegistry";
 
 import { readFileSync } from "node:fs";
-
-const NODEREGISTRY_PROCESS_ID = "lsVh9GO7pzFXcFEuAfw7l_9WU7KAAqTRkU0kVH0lx2g";
 
 /**
  * Encrypt data and upload data
@@ -26,24 +23,8 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     // 4. register encrypted keys and ar data url to ao data process
     // 5. return data id
 
-    const msgId = await message({
-        process: NODEREGISTRY_PROCESS_ID,
-        // Tags that the process will use as input.
-        tags: [
-          { name: "Action", value: "Nodes" },
-        ],
-        // A signer function used to build the message "signature"
-        signer: signer,
-      });
-    console.log("msgId=", msgId);
-    let { Messages } = await result({
-        // the arweave TXID of the message
-        message: msgId,
-        // the arweave TXID of the process
-        process: NODEREGISTRY_PROCESS_ID,
-      });
-    const nodes = Messages[0].Data;
-    console.log("nodes=", nodes);
+    const nodesres = await nodes(signer);
+    console.log("nodes=", nodesres);
 
     console.log("test data dataTag price=", data, dataTag, price);
 
@@ -79,5 +60,10 @@ async function test() {
         readFileSync("/Users/fksyuan/.aos.json").toString(),
     );
     uploadData(new Uint8Array([1,2,3]), "test", createDataItemSigner(wallet), "1");
+
+    /*setTimeout(async ()=> {
+      await register("testnode3", keygen().pk, "testnode3desc", createDataItemSigner(wallet));
+      await nodes(createDataItemSigner(wallet));
+    }, 1000);*/
 }
 test();
