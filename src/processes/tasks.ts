@@ -5,13 +5,13 @@ import {
 
 import { TASKS_PROCESS_ID } from "../config";
 
-export const submit = async (type: string, inputData: string, 
+export const submit = async (taskType: string, inputData: string, 
     computeLimit: string, memoryLimit: string, signer: any) => {
     const msgId = await message({
         process: TASKS_PROCESS_ID,
         tags: [
           { name: "Action", value: "Submit" },
-          { name: "Type", value: type},
+          { name: "TaskType", value: taskType},
           { name: "ComputeLimit", value: computeLimit},
           { name: "MemoryLimit", value: memoryLimit},
         ],
@@ -49,9 +49,10 @@ export const reportResult = async (taskId: string,
         tags: [
           { name: "Action", value: "ReportResult" },
           { name: "TaskId", value: taskId },
-          { name: "Result", value: taskResult },
+          { name: "Result", value: "data field(deprecated)" },
         ],
         signer: signer,
+        data: taskResult,
     });
     let { Messages } = await result({
         message: msgId,
