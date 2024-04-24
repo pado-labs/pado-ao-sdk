@@ -28,8 +28,16 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     let nodesres = await nodes(signer);
     nodesres = JSON.parse(nodesres);
 
-    let nodesPublicKey = [nodesres["testnode1"].publickey,
-    nodesres["testnode2"].publickey, nodesres["testnode3"].publickey];
+    let nodepks =Object();
+    for(var i in nodesres) {
+        var node = nodesres[i];
+        nodepks[node.name] = node.publickey;
+    }
+    let nodesPublicKey = [
+        nodepks["testnode1"],
+        nodepks["testnode2"],
+        nodepks["testnode3"],
+    ];
     const res = encrypt(nodesPublicKey, data);
     //console.log("encrypt res=", res);
 
