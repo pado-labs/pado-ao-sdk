@@ -2,8 +2,7 @@ import {
     result,
     message,
   } from "@permaweb/aoconnect";
-
-const NODEREGISTRY_PROCESS_ID = "lsVh9GO7pzFXcFEuAfw7l_9WU7KAAqTRkU0kVH0lx2g";
+import { NODEREGISTRY_PROCESS_ID } from "../config";
 
 export const register = async (name: string, 
     pk: string, desc: string, signer: any) => {
@@ -19,7 +18,6 @@ export const register = async (name: string,
         signer: signer,
         data: pk,
       });
-    console.log("register msgId=", msgId);
     let { Messages } = await result({
         // the arweave TXID of the message
         message: msgId,
@@ -27,7 +25,6 @@ export const register = async (name: string,
         process: NODEREGISTRY_PROCESS_ID,
       });
     const res = Messages[0].Data;
-    console.log("register res=", res);
     return res;
 }
 

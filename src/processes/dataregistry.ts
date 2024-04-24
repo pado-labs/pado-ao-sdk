@@ -3,7 +3,7 @@ import {
     message,
   } from "@permaweb/aoconnect";
 
-const DATAREGISTRY_PROCESS_ID = "daYyE-QRXg2MBrX1E1lUmJ1hMR-GEmyrdUiUnv3dWLY";
+import { DATAREGISTRY_PROCESS_ID } from "../config";
 
 export const register = async (dataTag: string, 
     price: string, encSks: string, nonce: string, 
@@ -22,7 +22,6 @@ export const register = async (dataTag: string,
         signer: signer,
         data: encSks,
       });
-    console.log("data register msgId=", msgId);
     let { Messages } = await result({
         // the arweave TXID of the message
         message: msgId,
@@ -30,7 +29,6 @@ export const register = async (dataTag: string,
         process: DATAREGISTRY_PROCESS_ID,
       });
     const res = Messages[0].Data;
-    console.log("data register res=", res);
     return res;
 }
 

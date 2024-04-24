@@ -1,6 +1,6 @@
 import lhe from "./lib/lhe";
 
-const THRESHOLD_2_3 = {t: 2, n: 3, indices: [1, 2, 3]};
+export const THRESHOLD_2_3 = {t: 2, n: 3, indices: [1, 2, 3]};
 
 const lhe_call = (func: any, param_obj: any) => {
     let param_json = JSON.stringify(param_obj);
@@ -24,9 +24,7 @@ export const keygen = (param_obj: any = THRESHOLD_2_3) => {
 export const encrypt = (publicKeys: string[],
     data: Uint8Array,
     threshold: any = THRESHOLD_2_3) => {
-    let param_obj = threshold;
-    param_obj.node_pks = publicKeys;
-    param_obj.msg = Array.from(data);
+    let param_obj = {...threshold, node_pks: publicKeys, msg:Array.from(data)};
     return lhe_call(lhe._encrypt, param_obj); 
 }
 
