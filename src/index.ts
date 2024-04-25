@@ -25,7 +25,7 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     // 4. register encrypted keys and ar data url to ao data process
     // 5. return data id
 
-    let nodesres = await nodes(signer);
+    let nodesres = await nodes();
     nodesres = JSON.parse(nodesres);
 
     let nodepks =Object();
@@ -58,7 +58,7 @@ export const submitTask = async (dataId: string, consumerPk: string, signer: any
   // 1. get encrypted result
   // 2. invoke algorithm get plain data
 
-  const task = await getCompletedTasksById(taskId, signer);
+  const task = await getCompletedTasksById(taskId);
 }*/
 
 /*export const listData = async () => {
@@ -78,17 +78,17 @@ async function test() {
 
     const dataId = await uploadData(new Uint8Array([1,2,3]), "test", signer, "1");
     console.log("dataId=", dataId);
-    //const allDataRes = await allData(signer);
+    //const allDataRes = await allData();
     //console.log("allDataRes=", allDataRes);
 
     const taskId = await submitTask(dataId, keygen().pk, signer);
     console.log("taskId=", taskId);
-    const pendingTasks = await getPendingTasks(signer);
+    const pendingTasks = await getPendingTasks();
     console.log("pendingTasks=", pendingTasks);
 
     /*setTimeout(async ()=> {
       await register("testnode3", keygen().pk, "testnode3desc", createDataItemSigner(wallet));
-      await nodes(createDataItemSigner(wallet));
+      await nodes();
     }, 1000);*/
 }
 test();
