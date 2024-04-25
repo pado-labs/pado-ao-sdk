@@ -32,13 +32,11 @@ export const reencrypt = (
     enc_sk: string,
     node_sk: string,
     consumer_pk: string,
-    chosen_indices: any = [1,2],
     threshold: any = THRESHOLD_2_3) => {
         let param_obj = threshold;
         param_obj.enc_sk = enc_sk;
         param_obj.node_sk = node_sk;
         param_obj.consumer_pk = consumer_pk;
-        param_obj.chosen_indices = chosen_indices;
         return lhe_call(lhe._reencrypt, param_obj); 
 }
 

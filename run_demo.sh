@@ -26,3 +26,19 @@ nohup node ${demodir}/nodetask.js testnode1 testnode1-key.json ~/.aos.json >${de
 nohup node ${demodir}/nodetask.js testnode2 testnode2-key.json ~/.aos.json >${demodir}/nodetask2.log &
 nohup node ${demodir}/nodetask.js testnode3 testnode3-key.json ~/.aos.json >${demodir}/nodetask3.log &
 sleep 1
+
+# 3. seller upload data
+dataId=$(node ${demodir}/sellerupload.js ~/.aos.json | grep DATAID | awk -F= 'DATAID=$1 {print $2}')
+
+# 4. buyer submit task
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+
+sleep 10
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+sleep 10
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+sleep 10
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+
+# 5. buyer get the data
+# todo

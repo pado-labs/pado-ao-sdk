@@ -53,11 +53,10 @@ async function doTask(name: string, sk: string, signer: any) {
 
             /// 2. do reencrypt
             var threshold = { t: inputDataObj["t"], n: inputDataObj["n"], indices: inputDataObj["indices"] };
-            var chosen_indices = [1, 2]; // todo!
             const enc_sk = encSk;
             const node_sk = sk;
             const consumer_pk = inputDataObj["consumerPk"];
-            const reencsksObj = reencrypt(enc_sk, node_sk, consumer_pk, chosen_indices, threshold);
+            const reencsksObj = reencrypt(enc_sk, node_sk, consumer_pk, threshold);
             console.log("reencrypt res=", reencsksObj);
             var reencsks = JSON.stringify(reencsksObj);
 
