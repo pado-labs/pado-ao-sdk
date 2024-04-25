@@ -1,4 +1,6 @@
 #!/bin/bash
+ps -ef | grep nodetask | grep -v grep | awk '{print $2}' | xargs kill -9 >/dev/null 2>&1
+
 set -ex
 curdir=$(pwd)
 demodir=${curdir}/dist/demo
@@ -18,3 +20,9 @@ node ${demodir}/keygen.js buyer
 node ${demodir}/noderegister.js testnode1 testnode1-key.json ~/.aos.json
 node ${demodir}/noderegister.js testnode2 testnode2-key.json ~/.aos.json
 node ${demodir}/noderegister.js testnode3 testnode3-key.json ~/.aos.json
+
+# 2. start pado node task in the background
+nohup node ${demodir}/nodetask.js testnode1 testnode1-key.json ~/.aos.json >${demodir}/nodetask1.log &
+nohup node ${demodir}/nodetask.js testnode2 testnode2-key.json ~/.aos.json >${demodir}/nodetask2.log &
+nohup node ${demodir}/nodetask.js testnode3 testnode3-key.json ~/.aos.json >${demodir}/nodetask3.log &
+sleep 1
