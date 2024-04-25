@@ -29,3 +29,16 @@ sleep 1
 
 # 3. seller upload data
 dataId=$(node ${demodir}/sellerupload.js ~/.aos.json | grep DATAID | awk -F= 'DATAID=$1 {print $2}')
+
+# 4. buyer submit task
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+
+sleep 10
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+sleep 10
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+sleep 10
+node ${demodir}/buyersubmit.js ${dataId} buyer-key.json ~/.aos.json
+
+# 5. buyer get the data
+# todo
