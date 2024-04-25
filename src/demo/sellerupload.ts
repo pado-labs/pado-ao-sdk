@@ -23,7 +23,7 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     // 4. register encrypted keys and ar data url to ao data process
     // 5. return data id
 
-    let nodesres = await nodes(signer);
+    let nodesres = await nodes();
     nodesres = JSON.parse(nodesres);
     // console.log('nodesres:', nodesres);
 

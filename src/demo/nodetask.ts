@@ -19,7 +19,7 @@ import { exit } from "node:process";
  */
 async function doTask(name: string, sk: string, signer: any) {
     /// 1. fetch pending task(s)
-    const pendingTasks = await getPendingTasks(signer);
+    const pendingTasks = await getPendingTasks();
     const pendingTasksObj = JSON.parse(pendingTasks);
     // console.log("doTask pendingTasks=", pendingTasks);
     for (var i in pendingTasksObj) {
@@ -37,7 +37,7 @@ async function doTask(name: string, sk: string, signer: any) {
         console.log("doTask inputData.dataId=", dataId);
 
 
-        const dataRes = await getDataById(dataId, signer);
+        const dataRes = await getDataById(dataId);
         const dataResObj = JSON.parse(dataRes);
         // console.log("doTask Data=", dataResObj);
         {

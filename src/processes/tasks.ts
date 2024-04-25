@@ -1,7 +1,8 @@
 import {
     result,
     message,
-  } from "@permaweb/aoconnect";
+    dryrun,
+} from "@permaweb/aoconnect";
 
 import { TASKS_PROCESS_ID } from "../config";
 
@@ -26,17 +27,12 @@ export const submit = async (taskType: string, inputData: string,
     return res;
 }
 
-export const getPendingTasks = async (signer: any) => {
-    const msgId = await message({
+export const getPendingTasks = async () => {
+    let { Messages } = await dryrun({
         process: TASKS_PROCESS_ID,
         tags: [
           { name: "Action", value: "GetPendingTasks" },
         ],
-        signer: signer,
-    });
-    let { Messages } = await result({
-        message: msgId,
-        process: TASKS_PROCESS_ID,
     });
     const res = Messages[0].Data;
     return res;
@@ -63,50 +59,35 @@ export const reportResult = async (taskId: string,
 }
 
 export const getCompletedTasksById = async (
-    taskId: string, signer: any) => {
-    const msgId = await message({
+    taskId: string) => {
+    let { Messages } = await dryrun({
         process: TASKS_PROCESS_ID,
         tags: [
           { name: "Action", value: "GetCompletedTasksById" },
           { name: "TaskId", value: taskId },
         ],
-        signer: signer,
-    });
-    let { Messages } = await result({
-        message: msgId,
-        process: TASKS_PROCESS_ID,
     });
     const res = Messages[0].Data;
     return res;
 }
 
-export const getCompletedTasks = async (signer: any) => {
-    const msgId = await message({
+export const getCompletedTasks = async () => {
+    let { Messages } = await dryrun({
         process: TASKS_PROCESS_ID,
         tags: [
           { name: "Action", value: "GetCompletedTasks" },
         ],
-        signer: signer,
-    });
-    let { Messages } = await result({
-        message: msgId,
-        process: TASKS_PROCESS_ID,
     });
     const res = Messages[0].Data;
     return res;
 }
 
-export const getAllTasks = async (signer: any) => {
-    const msgId = await message({
+export const getAllTasks = async () => {
+    let { Messages } = await dryrun({
         process: TASKS_PROCESS_ID,
         tags: [
           { name: "Action", value: "GetAllTasks" },
         ],
-        signer: signer,
-    });
-    let { Messages } = await result({
-        message: msgId,
-        process: TASKS_PROCESS_ID,
     });
     const res = Messages[0].Data;
     return res;
