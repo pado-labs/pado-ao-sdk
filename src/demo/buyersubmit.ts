@@ -6,7 +6,7 @@ import { exit } from "node:process";
 
 export const submitTask = async (dataId: string, consumerPk: string, signer: any) => {
   let inputData = { ...THRESHOLD_2_3, dataId: dataId, consumerPk: consumerPk };
-  const taskId = await submit("ZKLHEDataSharing", JSON.stringify(inputData), "9000000000000", "512M", signer);
+  const taskId = await submit("ZKLHEDataSharing", JSON.stringify(inputData), "9000000000000", "512M", ["testnode1", "testnode2", "testnode3"], signer);
   return taskId;
 }
 
