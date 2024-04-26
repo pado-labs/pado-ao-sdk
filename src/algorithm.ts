@@ -33,10 +33,7 @@ export const reencrypt = (
     node_sk: string,
     consumer_pk: string,
     threshold: any = THRESHOLD_2_3) => {
-        let param_obj = threshold;
-        param_obj.enc_sk = enc_sk;
-        param_obj.node_sk = node_sk;
-        param_obj.consumer_pk = consumer_pk;
+        let param_obj = {...threshold, enc_sk: enc_sk, node_sk: node_sk, consumer_pk: consumer_pk};
         return lhe_call(lhe._reencrypt, param_obj); 
 }
 
@@ -46,11 +43,7 @@ export const decrypt = (reenc_sks: string[],
     enc_msg: string,
     chosen_indices: any = [1,2],
     threshold: any = THRESHOLD_2_3) => {
-        let param_obj = threshold;
-        param_obj.reenc_sks = reenc_sks;
-        param_obj.consumer_sk = consumer_sk;
-        param_obj.nonce = nonce;
-        param_obj.enc_msg = enc_msg;
-        param_obj.chosen_indices = chosen_indices;
+        let param_obj = {...threshold, reenc_sks: reenc_sks, consumer_sk: consumer_sk,
+            nonce:nonce, enc_msg: enc_msg, chosen_indices: chosen_indices};
         return lhe_call(lhe._decrypt, param_obj); 
 }

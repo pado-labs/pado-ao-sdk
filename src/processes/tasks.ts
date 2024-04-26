@@ -7,7 +7,7 @@ import {
 import { TASKS_PROCESS_ID } from "../config";
 
 export const submit = async (taskType: string, inputData: string, 
-    computeLimit: string, memoryLimit: string, signer: any) => {
+    computeLimit: string, memoryLimit: string, computeNodes: string[], signer: any) => {
     const msgId = await message({
         process: TASKS_PROCESS_ID,
         tags: [
@@ -15,6 +15,7 @@ export const submit = async (taskType: string, inputData: string,
           { name: "TaskType", value: taskType},
           { name: "ComputeLimit", value: computeLimit},
           { name: "MemoryLimit", value: memoryLimit},
+          { name: "ComputeNodes", value: JSON.stringify(computeNodes)},
         ],
         signer: signer,
         data: inputData,
@@ -45,7 +46,6 @@ export const reportResult = async (taskId: string,
         tags: [
           { name: "Action", value: "ReportResult" },
           { name: "TaskId", value: taskId },
-          { name: "Result", value: "data field(deprecated)" },
         ],
         signer: signer,
         data: taskResult,
@@ -67,7 +67,11 @@ export const getCompletedTasksById = async (
           { name: "TaskId", value: taskId },
         ],
     });
-    const res = Messages[0].Data;
+    console.log("getCompletedTasksById Messages=", Messages);
+    let res = "{}";
+    if (Messages[0] && Messages[0].Data) {
+        res = Messages[0].Data;
+    }
     return res;
 }
 

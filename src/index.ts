@@ -1,10 +1,10 @@
 import {
     createDataItemSigner,
   } from "@permaweb/aoconnect";
-import { encrypt, keygen, THRESHOLD_2_3} from "./algorithm";
+import { encrypt, decrypt, keygen, THRESHOLD_2_3} from "./algorithm";
 import { nodes } from "./processes/noderegistry";
-import { register as dataRegister, /*allData*/ } from "./processes/dataregistry";
-import { submit, /*getCompletedTasksById*/ getPendingTasks } from "./processes/tasks";
+import { register as dataRegister, getDataById } from "./processes/dataregistry";
+import { submit, getCompletedTasksById, /*getPendingTasks*/ } from "./processes/tasks";
 
 import { readFileSync } from "node:fs";
 
@@ -29,8 +29,8 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     nodesres = JSON.parse(nodesres);
 
     let nodepks =Object();
-    for(var i in nodesres) {
-        var node = nodesres[i];
+    for(let i in nodesres) {
+        let node = nodesres[i];
         nodepks[node.name] = node.publickey;
     }
     let nodesPublicKey = [
@@ -47,19 +47,37 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     return dataRes;
 }
 
-export const submitTask = async (dataId: string, consumerPk: string, signer: any) => {
-  let inputData = {...THRESHOLD_2_3, dataId: dataId, consumerPk: consumerPk};
-  const taskId = await submit("ZKLHEDataSharing", JSON.stringify(inputData), "9000000000000", "512M", signer);
-  console.log("taskId=", taskId);
+export const submitTask = async (dataId: string, dataUserPk: string, signer: any) => {
+  let inputData = {...THRESHOLD_2_3, dataId: dataId, consumerPk: dataUserPk};
+  const taskId = await submit("ZKLHEDataSharing", JSON.stringify(inputData),
+  "9000000000000", "512M",["testnode1", "testnode2", "testnode3"], signer);
   return taskId;
 }
 
-/*export const getResult = async (taskId: string, signer: any) => {
+export const getResult = async (taskId: string, dataUserSk: string) => {
   // 1. get encrypted result
   // 2. invoke algorithm get plain data
 
-  const task = await getCompletedTasksById(taskId);
-}*/
+  const taskStr = await getCompletedTasksById(taskId);
+  const task = JSON.parse(taskStr);
+  if (!task.id) {
+    return "no task or task is not completed";
+  }
+  const chosenIndices = [1,2];
+  let reencSks = [];
+  for(let nodeName of task.computeNodes) {
+    reencSks.push(task.result[nodeName]);
+  }
+  console.log("getResult reencSks=", reencSks);
+
+  let dataId = (JSON.parse(task.inputData)).dataId;
+  const encData = await getDataById(dataId);
+  console.log("getResult encData=", encData);
+
+  const res = decrypt(reencSks, dataUserSk, encData.nonce, encData.encMsg, chosenIndices);
+  console.log("getResult plain data=", res);
+  return res;
+}
 
 /*export const listData = async () => {
     // 1. get data list from data process
@@ -81,10 +99,14 @@ async function test() {
     //const allDataRes = await allData();
     //console.log("allDataRes=", allDataRes);
 
-    const taskId = await submitTask(dataId, keygen().pk, signer);
+    const dataUserKey = keygen();
+    const taskId = await submitTask(dataId, dataUserKey.pk, signer);
     console.log("taskId=", taskId);
-    const pendingTasks = await getPendingTasks();
-    console.log("pendingTasks=", pendingTasks);
+    //const pendingTasks = await getPendingTasks();
+    //console.log("pendingTasks=", pendingTasks);
+
+    const res = await getResult(taskId, dataUserKey.sk);
+    console.log("res=", res);
 
     /*setTimeout(async ()=> {
       await register("testnode3", keygen().pk, "testnode3desc", createDataItemSigner(wallet));
