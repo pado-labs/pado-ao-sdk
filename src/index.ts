@@ -63,19 +63,20 @@ export const getResult = async (taskId: string, dataUserSk: string) => {
   if (!task.id) {
     return "no task or task is not completed";
   }
-  const chosenIndices = [1,2];
+  const chosenIndices = [1, 2];
   let reencSks = [];
-  for(let nodeName of task.computeNodes) {
-    reencSks.push(task.result[nodeName]);
+  const computeNodes = JSON.parse(task.computeNodes);
+  for(let nodeName of computeNodes) {
+    const reencSksObj = JSON.parse(task.result[nodeName]);
+    reencSks.push(reencSksObj.reenc_sk);
   }
-  console.log("getResult reencSks=", reencSks);
+  const reencChosenSks = [reencSks[0], reencSks[1]];
 
   let dataId = (JSON.parse(task.inputData)).dataId;
-  const encData = await getDataById(dataId);
-  console.log("getResult encData=", encData);
+  let encData = await getDataById(dataId);
+  encData = JSON.parse(encData);
 
-  const res = decrypt(reencSks, dataUserSk, encData.nonce, encData.encMsg, chosenIndices);
-  console.log("getResult plain data=", res);
+  const res = decrypt(reencChosenSks, dataUserSk, encData.nonce, encData.encMsg, chosenIndices);
   return res;
 }
 
@@ -100,13 +101,17 @@ async function test() {
     //console.log("allDataRes=", allDataRes);
 
     const dataUserKey = keygen();
+    //console.log("dataUserKey=", dataUserKey);
     const taskId = await submitTask(dataId, dataUserKey.pk, signer);
     console.log("taskId=", taskId);
     //const pendingTasks = await getPendingTasks();
-    //console.log("pendingTasks=", pendingTasks);
+    //console.log("pendingTasks=", pendingTasks);*/
 
-    const res = await getResult(taskId, dataUserKey.sk);
-    console.log("res=", res);
+    setTimeout(async()=>{
+      const res = await getResult(taskId, dataUserKey.sk);
+      console.log("res=", res);
+    }, 10000);
+
 
     /*setTimeout(async ()=> {
       await register("testnode3", keygen().pk, "testnode3desc", createDataItemSigner(wallet));
