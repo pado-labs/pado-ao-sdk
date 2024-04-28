@@ -64,11 +64,11 @@ export const getCompletedTasksById = async (
     let { Messages } = await dryrun({
         process: TASKS_PROCESS_ID,
         tags: [
-          { name: "Action", value: "GetCompletedTasksById" },
+          { name: "Action", value: "GetCompletedTaskById" },
           { name: "TaskId", value: taskId },
         ],
     });
-    console.log("getCompletedTasksById Messages=", Messages);
+    //console.log("getCompletedTasksById Messages=", Messages);
     let res = "{}";
     if (Messages[0] && Messages[0].Data) {
         res = Messages[0].Data;
