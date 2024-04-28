@@ -39,13 +39,14 @@ export const getPendingTasks = async () => {
     return res;
 }
 
-export const reportResult = async (taskId: string, 
+export const reportResult = async (taskId: string, nodeName: string,
     taskResult: string, signer: any) => {
     const msgId = await message({
         process: TASKS_PROCESS_ID,
         tags: [
           { name: "Action", value: "ReportResult" },
           { name: "TaskId", value: taskId },
+          { name: "NodeName", value: nodeName },
         ],
         signer: signer,
         data: taskResult,

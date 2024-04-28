@@ -61,7 +61,7 @@ async function doTask(name: string, sk: string, signer: any) {
             var reencsks = JSON.stringify(reencsksObj);
 
             /// 3. submit result
-            const res = await reportResult(taskId, reencsks, signer);
+            const res = await reportResult(taskId, name, reencsks, signer);
             console.log("reportResult res=", res);
         }
     }
