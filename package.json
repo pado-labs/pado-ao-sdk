@@ -20,7 +20,8 @@
     "test:integration": "cd ./test/e2e && npm test"
   },
   "dependencies": {
-    "@permaweb/aoconnect": "^0.0.51"
+    "@permaweb/aoconnect": "^0.0.51",
+    "arweave": "^1.15.0"
   },
   "devDependencies": {
     "@ianvs/prettier-plugin-sort-imports": "^4.2.1",
