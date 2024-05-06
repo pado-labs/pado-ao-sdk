@@ -1,11 +1,10 @@
-import {
-    createDataItemSigner,
-  } from "@permaweb/aoconnect";
+import { createDataItemSigner } from "@permaweb/aoconnect";
 import { encrypt, decrypt, keygen, THRESHOLD_2_3} from "./algorithm";
 import { nodes } from "./processes/noderegistry";
 import { register as dataRegister, getDataById } from "./processes/dataregistry";
 import { submit, getCompletedTasksById, /*getPendingTasks*/ } from "./processes/tasks";
-
+import { submitDataToAR, getDataFromAR } from "./padoarweave";
+import Arweave from 'arweave';
 import { readFileSync } from "node:fs";
 
 /**
@@ -18,7 +17,7 @@ import { readFileSync } from "node:fs";
  * @returns The uploaded encrypted data id
  *
  */
-export const uploadData = async (data: Uint8Array, dataTag: string, signer: any, price: string) => {
+export const uploadData = async (data: Uint8Array, dataTag: string, wallet: any, price: string, arweave: Arweave) => {
     // 1. get pado node public key
     // 2. invoke algorithm encrypt
     // 3. upload encrypted data to AR
@@ -41,20 +40,26 @@ export const uploadData = async (data: Uint8Array, dataTag: string, signer: any,
     const res = encrypt(nodesPublicKey, data);
     //console.log("encrypt res=", res);
 
+    const transactionId = await submitDataToAR(arweave, res.enc_msg, wallet);
+    console.log("uploadData ar transactionId=", transactionId);
+    console.log("uploadData ar enc_msg=", res.enc_msg);
+
+    const signer = createDataItemSigner(wallet);
     const encSksStr = JSON.stringify(res.enc_sks);
     const dataRes = await dataRegister(dataTag,
-      price, encSksStr, res.nonce, res.enc_msg, signer);
+      price, encSksStr, res.nonce, transactionId, signer);
     return dataRes;
 }
 
-export const submitTask = async (dataId: string, dataUserPk: string, signer: any) => {
+export const submitTask = async (dataId: string, dataUserPk: string, wallet: any) => {
+  const signer = createDataItemSigner(wallet);
   let inputData = {...THRESHOLD_2_3, dataId: dataId, consumerPk: dataUserPk};
   const taskId = await submit("ZKLHEDataSharing", JSON.stringify(inputData),
   "9000000000000", "512M",["testnode1", "testnode2", "testnode3"], signer);
   return taskId;
 }
 
-export const getResult = async (taskId: string, dataUserSk: string) => {
+export const getResult = async (taskId: string, dataUserSk: string, arweave: Arweave) => {
   // 1. get encrypted result
   // 2. invoke algorithm get plain data
 
@@ -75,9 +80,11 @@ export const getResult = async (taskId: string, dataUserSk: string) => {
   let dataId = (JSON.parse(task.inputData)).dataId;
   let encData = await getDataById(dataId);
   encData = JSON.parse(encData);
-
-  const res = decrypt(reencChosenSks, dataUserSk, encData.nonce, encData.encMsg, chosenIndices);
-  return res;
+  //console.log("getResult ar encData=", encData);
+  const encMsg = await getDataFromAR(arweave, encData.encMsg);
+  console.log("getResult ar enc_msg=", encMsg);
+  const res = decrypt(reencChosenSks, dataUserSk, encData.nonce, encMsg, chosenIndices);
+  return new Uint8Array(res.msg);
 }
 
 /*export const listData = async () => {
@@ -91,24 +98,29 @@ export const SubmitTaskAndGetResult = async (dataId: string, publicKey: string) 
 
 async function test() {
     const wallet = JSON.parse(
-        readFileSync("/Users/fksyuan/.aos.json").toString(),
+        readFileSync("./arweave-keyfile-JNqOSFDeSAh_icEDVAVa_r9wJfGU9AYCAJUQb2ss7T8.json").toString(),
     );
-    const signer = createDataItemSigner(wallet);
+    //const signer = createDataItemSigner(wallet);
+    const arweave = Arweave.init({
+      host: '127.0.0.1',
+      port: 1984,
+      protocol: 'http'
+    });
 
-    const dataId = await uploadData(new Uint8Array([1,2,3]), "test", signer, "1");
+    const dataId = await uploadData(new Uint8Array([1,2,3,4,5,6]), "test", wallet, "1", arweave);
     console.log("dataId=", dataId);
     //const allDataRes = await allData();
     //console.log("allDataRes=", allDataRes);
 
     const dataUserKey = keygen();
     //console.log("dataUserKey=", dataUserKey);
-    const taskId = await submitTask(dataId, dataUserKey.pk, signer);
+    const taskId = await submitTask(dataId, dataUserKey.pk, wallet);
     console.log("taskId=", taskId);
     //const pendingTasks = await getPendingTasks();
     //console.log("pendingTasks=", pendingTasks);*/
 
     setTimeout(async()=>{
-      const res = await getResult(taskId, dataUserKey.sk);
+      const res = await getResult(taskId, dataUserKey.sk, arweave);
       console.log("res=", res);
     }, 10000);
 
