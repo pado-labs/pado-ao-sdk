@@ -24,7 +24,7 @@ export const submit = async (taskType: string, inputData: string,
         message: msgId,
         process: TASKS_PROCESS_ID,
     });
-    const res = Messages[0].Data;
+    const res = Messages[1].Data;
     return res;
 }
 
