@@ -59,7 +59,7 @@ export const uploadData = async (data: Uint8Array, dataTag: any, priceInfo: Pric
 export const submitTask = async (dataId: string, dataUserPk: string, wallet: any): Promise<string> => {
   const signer = createDataItemSigner(wallet);
   let inputData = {...THRESHOLD_2_3, dataId: dataId, consumerPk: dataUserPk};
-  const taskId = await submit("ZKLHEDataSharing", JSON.stringify(inputData),
+  const taskId = await submit("ZKLHEDataSharing", dataId, JSON.stringify(inputData),
   "9000000000000", "512M",["testnode1", "testnode2", "testnode3"], signer);
   return taskId;
 }
