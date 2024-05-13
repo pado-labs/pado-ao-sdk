@@ -64,13 +64,34 @@ export const submitTask = async (dataId: string, dataUserPk: string, wallet: any
   return taskId;
 }
 
-export const getResult = async (taskId: string, dataUserSk: string,
-  arweave: Arweave = Arweave.init({})) => {
-  const taskStr = await getCompletedTasksById(taskId);
+/**
+ * Get the result of the task
+ * @param taskId taskId
+ * @param timeout Timeout in milliseconds
+ */
+const getResultPromise = (taskId: string, timeout: number): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const start = performance.now();
+    const tick = async () => {
+      const timeGap = performance.now() - start;
+      const taskStr = await getCompletedTasksById(taskId);
+      const task = JSON.parse(taskStr);
+      if (task.id) {
+        resolve(taskStr);
+      } else if (timeGap > timeout) {
+        reject('timeout');
+      } else {
+        setTimeout(tick, 500);
+      }
+    };
+    tick();
+  });
+};
+
+export const getResult = async (taskId: string, dataUserSk: string, timeout: number,
+                                arweave: Arweave = Arweave.init({})) => {
+  const taskStr = await getResultPromise(taskId, timeout);
   const task = JSON.parse(taskStr);
-  if (!task.id) {
-    return "no task or task is not completed";
-  }
   const chosenIndices = [1, 2];
   let reencSks = [];
   const computeNodes = JSON.parse(task.computeNodes);
@@ -122,10 +143,8 @@ async function test() {
     //const pendingTasks = await getPendingTasks();
     //console.log("pendingTasks=", pendingTasks);*/
 
-    setTimeout(async()=>{
-      const res = await getResult(taskId, dataUserKey.sk, arweave);
-      console.log("res=", res);
-    }, 10000);
+    const res = await getResult(taskId, dataUserKey.sk, 10000, arweave);
+    console.log('res=', res);
 
 
     /*setTimeout(async ()=> {
