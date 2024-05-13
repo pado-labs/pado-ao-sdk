@@ -17,3 +17,14 @@ dataId=$(node ${distdir}/uploaddata.js ${arwalletpath} | grep DATAID | awk -F= '
 
 # 0. buyer keygen
 node ${distdir}/keygen.js buyer
+
+# 1. buyer transfer AOCRED to task process
+# node ${distdir}/transferaocredtotask.js ${arwalletpath} 4
+
+# 2. buyer submit task
+node ${distdir}/submittask.js ${dataId} buyer-key.json ${arwalletpath}
+
+exit 0
+
+# 3. buyer get the data
+# todo
