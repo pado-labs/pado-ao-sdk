@@ -11,8 +11,11 @@ export const getTag = (Message: any, Tag: string) => {
   return null
 }
 
-export const getMessageResultData = (Result: any/*type:MessageResult*/) => {
-  console.log("Result:", JSON.stringify(Result));
+export const getMessageResultData = (Result: any/*type:MessageResult*/, showResult = false) => {
+  if (showResult) {
+    console.log("Result:", JSON.stringify(Result));
+  }
+
   if (Result.Error) {
     //TODO: Recognizing different errrors
     throw Result.Error;

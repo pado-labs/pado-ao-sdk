@@ -1,8 +1,4 @@
-import {
-    result,
-    message,
-    dryrun,
-} from "@permaweb/aoconnect";
+import { result, message, dryrun } from "@permaweb/aoconnect";
 import { TASKS_PROCESS_ID } from "../config";
 import { getMessageResultData } from "./utils";
 
@@ -21,13 +17,12 @@ export const submit = async (taskType: string, dataId: string, inputData: string
         signer: signer,
         data: inputData,
     });
-    let { Messages } = await result({
+    let Result = await result({
         message: msgId,
         process: TASKS_PROCESS_ID,
     });
-    // console.log("Messages:", JSON.stringify(Messages));
-    //TODO: scan Messages
-    const res = Messages[2].Data;
+
+    const res = getMessageResultData(Result);
     return res;
 }
 
