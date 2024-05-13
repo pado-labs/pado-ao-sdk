@@ -11,6 +11,32 @@ export const getTag = (Message: any, Tag: string) => {
   return null
 }
 
+export const getMessageResultData = (Result: any/*type:MessageResult*/) => {
+  console.log("Result:", JSON.stringify(Result));
+  if (Result.Error) {
+    //TODO: Recognizing different errrors
+    throw Result.Error;
+  }
+
+  let Messages = Result.Messages;
+  for (let Message of Messages) {
+    let Tags = Message.Tags;
+    for (let Tag of Tags) {
+      if (Tag.name === "Error") {
+        throw Tag.value;
+      }
+    }
+  }
+
+  for (let Message of Messages) {
+    if (Message.Data) {
+      return Message.Data;
+    }
+  }
+
+  return undefined;
+}
+
 export const transfer = async (from: string, recipient: string, quantity: string, signer: any) => {
   let msgId = await message({
     "process": from,
