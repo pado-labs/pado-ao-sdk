@@ -4,6 +4,7 @@ import {
     dryrun,
 } from "@permaweb/aoconnect";
 import { TASKS_PROCESS_ID } from "../config";
+import { getMessageResultData } from "./utils";
 
 export const submit = async (taskType: string, dataId: string, inputData: string,
     computeLimit: string, memoryLimit: string, computeNodes: string[], signer: any) => {
@@ -53,11 +54,12 @@ export const reportResult = async (taskId: string, nodeName: string,
         signer: signer,
         data: taskResult,
     });
-    let { Messages } = await result({
+    let Result = await result({
         message: msgId,
         process: TASKS_PROCESS_ID,
     });
-    const res = Messages[0].Data;
+
+    const res = getMessageResultData(Result);
     return res;
 }
 
@@ -99,3 +101,4 @@ export const getAllTasks = async () => {
     const res = Messages[0].Data;
     return res;
 }
+
