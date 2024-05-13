@@ -1,5 +1,5 @@
 import { exit } from "node:process";
-import { keygen } from "../algorithm";
+import { keygen } from "./algorithm";
 import { writeFileSync } from "node:fs";
 
 /**
@@ -15,8 +15,8 @@ function generateKey(name: string) {
 async function test() {
     setTimeout(() => {
         const args = process.argv.slice(2)
-        if (args.length == 0) {
-            console.log("give me a name");
+        if (args.length < 1) {
+            console.log("args: <name>");
             exit(2);
         }
         let name = args[0];
