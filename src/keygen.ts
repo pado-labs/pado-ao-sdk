@@ -2,26 +2,26 @@ import { exit } from "node:process";
 import { keygen } from "./algorithm";
 import { writeFileSync } from "node:fs";
 
+
 /**
- * Generate key pair, store to <name>-key.json
+ * Generate key pair
  *
- * @param name - the node name
+ * @returns The key-pair object
  */
-function generateKey(name: string) {
-    let key = keygen();
-    writeFileSync(`${name}-key.json`, JSON.stringify(key));
+export const generateKey = async (): Promise<string> => {
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    return keygen();
 }
 
 async function test() {
-    setTimeout(() => {
-        const args = process.argv.slice(2)
-        if (args.length < 1) {
-            console.log("args: <name>");
-            exit(2);
-        }
-        let name = args[0];
+    const args = process.argv.slice(2)
+    if (args.length < 1) {
+        console.log("args: <name>");
+        exit(2);
+    }
+    let name = args[0];
 
-        generateKey(name);
-    }, 1000);
+    let key = await generateKey();
+    writeFileSync(`${name}-key.json`, JSON.stringify(key));
 }
 test();
