@@ -69,7 +69,7 @@ export const submitTask = async (dataId: string, dataUserPk: string, wallet: any
  * @param taskId taskId
  * @param timeout Timeout in milliseconds
  */
-const getResultPromise = (taskId: string, timeout: number): Promise<string> => {
+const getCompletedTaskPromise = (taskId: string, timeout: number): Promise<string> => {
   return new Promise((resolve, reject) => {
     const start = performance.now();
     const tick = async () => {
@@ -88,9 +88,13 @@ const getResultPromise = (taskId: string, timeout: number): Promise<string> => {
   });
 };
 
-export const getResult = async (taskId: string, dataUserSk: string, timeout: number,
-                                arweave: Arweave = Arweave.init({})) => {
-  const taskStr = await getResultPromise(taskId, timeout);
+export const getResult = async (taskId: string, dataUserSk: string,
+                                arweave: Arweave = Arweave.init({}), timeout?: number) => {
+  if(!timeout){
+    //default timeout is 10 seconds
+    timeout = 10000;
+  }
+  const taskStr = await getCompletedTaskPromise(taskId, timeout);
   const task = JSON.parse(taskStr);
   const chosenIndices = [1, 2];
   let reencSks = [];
@@ -109,7 +113,7 @@ export const getResult = async (taskId: string, dataUserSk: string, timeout: num
   console.log("getResult ar enc_msg=", encMsg);
   const res = decrypt(reencChosenSks, dataUserSk, encData.nonce, encMsg, chosenIndices);
   return new Uint8Array(res.msg);
-}
+};
 
 /*export const listData = async () => {
     // 1. get data list from data process
@@ -122,7 +126,8 @@ export const SubmitTaskAndGetResult = async (dataId: string, publicKey: string) 
 
 async function test() {
     const wallet = JSON.parse(
-        readFileSync("/Users/fksyuan/Downloads/arweave-keyfile-JNqOSFDeSAh_icEDVAVa_r9wJfGU9AYCAJUQb2ss7T8.json").toString(),
+        // readFileSync("/Users/fksyuan/Downloads/arweave-keyfile-JNqOSFDeSAh_icEDVAVa_r9wJfGU9AYCAJUQb2ss7T8.json").toString(),
+        readFileSync("/Users/xuda/script/wallets/ar/arweave-keyfile-gle8HJDn_QnEroXw1eb5cdCz9JMMwXn0ZynBPArHEQg.json").toString(),
     );
     //const signer = createDataItemSigner(wallet);
     const arweave = Arweave.init({
@@ -143,7 +148,7 @@ async function test() {
     //const pendingTasks = await getPendingTasks();
     //console.log("pendingTasks=", pendingTasks);*/
 
-    const res = await getResult(taskId, dataUserKey.sk, 10000, arweave);
+    const res = await getResult(taskId, dataUserKey.sk, arweave);
     console.log('res=', res);
 
 
