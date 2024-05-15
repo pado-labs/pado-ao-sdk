@@ -139,9 +139,15 @@ export const getResult = async (taskId: string, dataUserSk: string,
   arweave: Arweave = Arweave.init({}), timeout: number = 10000) => {
   const taskStr = await getCompletedTaskPromise(taskId, timeout);
   const task = JSON.parse(taskStr);
+
+  if (task.verificationError) {
+    throw task.verificationError;
+  }
+
   const chosenIndices = [1, 2];
   let reencSks = [];
   const computeNodes = JSON.parse(task.computeNodes);
+  // console.log("computeNodes=", computeNodes);
   for (let nodeName of computeNodes) {
     const reencSksObj = JSON.parse(task.result[nodeName]);
     reencSks.push(reencSksObj.reenc_sk);
