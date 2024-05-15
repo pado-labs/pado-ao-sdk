@@ -44,5 +44,13 @@ async function main() {
   const [err, data] = await getResult(taskId, key.sk, arweave).then(data => [null, data]).catch(err => [err, null]);
   console.log(`err=${err}`);
   console.log(`data=${data}`);
+
+  // You can also easily combine steps 3 and 4 by calling submitTaskAndGetResult, as follows:
+  /*{
+    const [err, data] = await submitTaskAndGetResult(dataId, key.pk, key.sk, wallet, arweave).then(data => [null, data]).catch(err => [err, null]);
+    console.log(`err=${err}`);
+    console.log(`data=${data}`);
+  }*/
+
 }
 main();
