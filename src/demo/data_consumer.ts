@@ -31,7 +31,7 @@ async function main() {
   const wallet = JSON.parse(readFileSync(walletpath).toString());
   const signer = createDataItemSigner(wallet);
 
-  const quantity = "1";
+  const quantity = "4";
   let transferRes = transferAOCREDToTask(quantity, signer);
   console.log(`transferRes=${transferRes}`);
 

@@ -13,7 +13,7 @@ const arweave = Arweave.init({
 async function main() {
   const args = process.argv.slice(2)
   if (args.length < 1) {
-    console.log("args: <arwalletpath>");
+    console.log("args: <walletpath>");
     exit(2);
   }
   let walletpath = args[0];

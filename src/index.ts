@@ -34,6 +34,10 @@ export const uploadData = async (data: Uint8Array, dataTag: any, priceInfo: Pric
 
   let nodesres = await nodes();
   nodesres = JSON.parse(nodesres);
+  if (nodesres.length < NODE_NAMES.length) {
+    throw new Error(`nodesres.length:${nodesres.length} should greater equal NODE_NAMES.length:${NODE_NAMES.length}`);
+  }
+
   let nodepks = Object();
   for (let i in nodesres) {
     let node = nodesres[i];
@@ -41,6 +45,7 @@ export const uploadData = async (data: Uint8Array, dataTag: any, priceInfo: Pric
   }
   let nodesPublicKey = [];
   for (let i in NODE_NAMES) {
+    //TODO: check whether exists
     nodesPublicKey.push(nodepks[NODE_NAMES[i]]);
   }
 
