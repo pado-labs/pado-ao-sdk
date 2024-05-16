@@ -32,9 +32,8 @@ async function main() {
   const signer = createDataItemSigner(wallet);
 
   const quantity = "4";
-  let transferRes = transferAOCREDToTask(quantity, signer);
+  let transferRes = await transferAOCREDToTask(quantity, signer);
   console.log(`transferRes=${transferRes}`);
-
 
   // step 3: submit a task
   const taskId = await submitTask(dataId, key.pk, wallet);
