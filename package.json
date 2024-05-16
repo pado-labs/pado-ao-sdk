@@ -1,8 +1,9 @@
 {
   "name": "@padolabs/pado-ao-sdk",
   "version": "0.1.0",
-  "author": "dev@padolabs.org",
+  "author": "Padolabs <dev@padolabs.org>",
   "description": "pado-ao-sdk",
+
   "repository": {
     "type": "git",
     "url": "https://github.com/pado-labs/pado-ao-sdk.git"
