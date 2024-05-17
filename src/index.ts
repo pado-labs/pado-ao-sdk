@@ -4,9 +4,56 @@ import { nodes } from "./processes/noderegistry";
 import { register as dataRegister, getDataById } from "./processes/dataregistry";
 import { submit, getCompletedTasksById } from "./processes/tasks";
 import { submitDataToAR, getDataFromAR } from "./padoarweave";
-import { NODE_NAMES } from "./config";
 export { transferAOCREDToTask } from './processes/utils';
 import Arweave from 'arweave';
+
+
+interface nodeInfo {
+  org_index: number,
+  index: number,
+  name: string,
+  pk: string,
+}
+
+/**
+* Get node infos
+*
+* @param n - How many nodes to select
+* @param random - Whether randomly selected
+* @returns The node infos
+*/
+const getNodeInfos = async (n: number, random: boolean = false): Promise<Array<nodeInfo>> => {
+  let nodesres = await nodes();
+  nodesres = JSON.parse(nodesres);
+  if (nodesres.length < n) {
+    throw `Insufficient number of nodes, expect ${n}, actual ${nodesres.length}`;
+  }
+
+  if (random) {
+    //TODO
+  }
+
+  let nodeInfos: Array<nodeInfo> = [];
+  for (var i = 0; i < nodesres.length && i < n; i++) {
+    let node = nodesres[i];
+    nodeInfos.push({
+      org_index: parseInt(node.index),
+      index: parseInt(node.index),
+      name: node.name,
+      pk: node.publickey
+    });
+  }
+  // console.log(nodeInfos);
+
+  // it's ok, no matter sorted or not
+  // nodeInfos.sort((a, b) => a.org_index - b.org_index);
+
+  // re-index, do not care original index
+  for (var i = 0; i < nodeInfos.length; i++) {
+    nodeInfos[i].index = i + 1;
+  }
+  return nodeInfos;
+}
 
 
 export interface PriceInfo {
@@ -30,37 +77,41 @@ export const uploadData = async (data: Uint8Array, dataTag: any, priceInfo: Pric
     throw new Error("The Data to be uploaded can not be empty");
   }
 
-  priceInfo.symbol = priceInfo.symbol || "PADO Token";
+  // TODO: only support 2-3 at present
+  var policy = {
+    t: THRESHOLD_2_3.t,
+    n: THRESHOLD_2_3.n,
+    indices: [] as number[],
+    names: [] as string[],
+  };
+  let nodeInfos = await getNodeInfos(policy.n, false);
+  // console.log(nodeInfos);
 
-  let nodesres = await nodes();
-  nodesres = JSON.parse(nodesres);
-  if (nodesres.length < NODE_NAMES.length) {
-    throw new Error(`nodesres.length:${nodesres.length} should greater equal NODE_NAMES.length:${NODE_NAMES.length}`);
+  let nodesPublicKey = [] as string[];
+  for (var i = 0; i < nodeInfos.length; i++) {
+    policy.indices.push(nodeInfos[i].index);
+    policy.names.push(nodeInfos[i].name);
+    nodesPublicKey.push(nodeInfos[i].pk);
   }
+  console.log(policy);
 
-  let nodepks = Object();
-  for (let i in nodesres) {
-    let node = nodesres[i];
-    nodepks[node.name] = node.publickey;
-  }
-  let nodesPublicKey = [];
-  for (let i in NODE_NAMES) {
-    //TODO: check whether exists
-    nodesPublicKey.push(nodepks[NODE_NAMES[i]]);
-  }
-
-  const res = encrypt(nodesPublicKey, data);
-
+  const res = encrypt(nodesPublicKey, data, policy);
+  // console.log(res);
   const transactionId = await submitDataToAR(arweave, res.enc_msg, wallet);
 
   const signer = createDataItemSigner(wallet);
-  const encSksStr = JSON.stringify(res.enc_sks);
-  // console.log('encSksStr', encSksStr);
-  // console.log('res.nonce', res.nonce);
-  const dataRes = await dataRegister(JSON.stringify(dataTag),
-    JSON.stringify(priceInfo), encSksStr, res.nonce, transactionId, signer);
+  let exData = {
+    policy: policy,
+    nonce: res.nonce,
+    transactionId: transactionId,
+    encSks: res.enc_sks,
+  };
+  // console.log(exData);
 
+  priceInfo.symbol = priceInfo.symbol || "AOCRED";
+  const dataRes = await dataRegister(JSON.stringify(dataTag), JSON.stringify(priceInfo), JSON.stringify(exData), signer);
   // console.log('res.dataRes', dataRes);
+
   return dataRes;
 }
 
@@ -99,10 +150,18 @@ const memoryLimit = "512M";
  * @returns The submited task id
  */
 export const submitTask = async (dataId: string, dataUserPk: string, wallet: any): Promise<string> => {
+  let encData = await getDataById(dataId);
+  encData = JSON.parse(encData);
+  // console.log(encData);
+  let exData = JSON.parse(encData.data);
+  let nodeNames = exData.policy.names;
+  // console.log('exData.policy', exData.policy);
+  // console.log('nodeNames', nodeNames);
+
   const signer = createDataItemSigner(wallet);
-  let inputData = { ...THRESHOLD_2_3, dataId: dataId, consumerPk: dataUserPk };
+  let inputData = { dataId: dataId, consumerPk: dataUserPk };
   const taskId = await submit(taskType, dataId, JSON.stringify(inputData),
-    computeLimit, memoryLimit, NODE_NAMES, signer);
+    computeLimit, memoryLimit, nodeNames, signer);
   return taskId;
 }
 
@@ -144,23 +203,30 @@ export const getResult = async (taskId: string, dataUserSk: string,
     throw task.verificationError;
   }
 
-  const chosenIndices = [1, 2];
-  let reencSks = [];
-  const computeNodes = JSON.parse(task.computeNodes);
-  // console.log("computeNodes=", computeNodes);
-  for (let nodeName of computeNodes) {
-    const reencSksObj = JSON.parse(task.result[nodeName]);
-    reencSks.push(reencSksObj.reenc_sk);
-  }
-  const reencChosenSks = [reencSks[0], reencSks[1]];
-
   let dataId = (JSON.parse(task.inputData)).dataId;
   let encData = await getDataById(dataId);
   encData = JSON.parse(encData);
+  let exData = JSON.parse(encData.data);
+
+  // TODO: since only support THRESHOLD_2_3 at present, we choice the first t nodes
+  let chosenIndices = [];
+  let reencChosenSks = [];
+  for (var i = 0; i < THRESHOLD_2_3.t; i++) {
+    let index = exData.policy.indices[i];
+    chosenIndices.push(index);
+
+    let name = exData.policy.names[i];
+    console.log("name=", name);
+    const reencSksObj = JSON.parse(task.result[name]);
+    reencChosenSks.push(reencSksObj.reenc_sk);
+  }
+  console.log("chosenIndices=", chosenIndices);
+  // console.log("reencChosenSks=", reencChosenSks);
+
   //console.log("getResult ar encData=", encData);
-  const encMsg = await getDataFromAR(arweave, encData.encMsg);
-  console.log("getResult ar enc_msg=", encMsg);
-  const res = decrypt(reencChosenSks, dataUserSk, encData.nonce, encMsg, chosenIndices);
+  const encMsg = await getDataFromAR(arweave, exData.transactionId);
+  console.log("getResult encMsg=", encMsg);
+  const res = decrypt(reencChosenSks, dataUserSk, exData.nonce, encMsg, chosenIndices);
   return new Uint8Array(res.msg);
 };
 
