@@ -8,10 +8,6 @@ import Arweave from "arweave";
 import { transferAOCREDToTask } from "./processes/utils";
 import { allData } from './processes/dataregistry';
 
-export const listData = () => {
-  return  allData();
-};
-
 interface nodeInfo {
   org_index: number,
   index: number,
@@ -132,13 +128,10 @@ export const generateKey = (): Promise<any> => {
   });
 }
 
-/*
-export const listData = async () => {
-  // 1. get data list from data process
-  // 2. return dataTag, data ar url, data id, data price
-  // let datas = await allData();
-}*/
 
+export const listData = () => {
+  return  allData();
+};
 
 //TODO:
 const taskType = "ZKLHEDataSharing";
