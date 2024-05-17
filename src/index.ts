@@ -1,11 +1,12 @@
-import { createDataItemSigner } from "@permaweb/aoconnect";
-import { encrypt, decrypt, keygen, THRESHOLD_2_3 } from "./algorithm";
-import { nodes } from "./processes/noderegistry";
-import { register as dataRegister, getDataById } from "./processes/dataregistry";
-import { submit, getCompletedTasksById } from "./processes/tasks";
-import { submitDataToAR, getDataFromAR } from "./padoarweave";
-export { transferAOCREDToTask } from './processes/utils';
+import { createDataItemSigner } from '@permaweb/aoconnect';
+import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from './algorithm';
+import { nodes } from './processes/noderegistry';
+import { getDataById, register as dataRegister } from './processes/dataregistry';
+import { getCompletedTasksById, getComputationPrice, submit } from './processes/tasks';
+import { getDataFromAR, submitDataToAR } from './padoarweave';
 import Arweave from 'arweave';
+import { transferAOCREDToTask } from './processes/utils';
+
 
 
 interface nodeInfo {
@@ -153,17 +154,37 @@ export const submitTask = async (dataId: string, dataUserPk: string, wallet: any
   let encData = await getDataById(dataId);
   encData = JSON.parse(encData);
   // console.log(encData);
-  let exData = JSON.parse(encData.data);
-  let nodeNames = exData.policy.names;
+  const exData = JSON.parse(encData.data);
+  const nodeNames = exData.policy.names;
+  const priceObj = JSON.parse(encData.price);
+  const symbol = priceObj.symbol;
+  if(symbol!=='AOCRED'){
+    throw new Error('Only support AOCRED now');
+  }
+  const dataPrice = priceObj.price;
+  //get node price
+  const nodePrice = await getComputationPrice();
+  const totalPrice = Number(dataPrice)+Number(nodePrice)*nodeNames.length;
+  // console.log(`dataPrice is:${dataPrice} and nodePrice is:${nodePrice},size of nodes is:${nodeNames.length},totalPrice is:${totalPrice}`);
+
   // console.log('exData.policy', exData.policy);
   // console.log('nodeNames', nodeNames);
-
   const signer = createDataItemSigner(wallet);
+  try{
+    await transferAOCREDToTask(totalPrice.toString(),signer);
+  }catch (err){
+    if(err==='Insufficient Balance!'){
+      throw new Error('Insufficient Balance! Please ensure that your wallet balance is greater than '+totalPrice+' AOCRED');
+    }else {
+      throw err;
+    }
+  }
+
   let inputData = { dataId: dataId, consumerPk: dataUserPk };
   const taskId = await submit(taskType, dataId, JSON.stringify(inputData),
     computeLimit, memoryLimit, nodeNames, signer);
   return taskId;
-}
+};
 
 const getCompletedTaskPromise = (taskId: string, timeout: number): Promise<string> => {
   return new Promise((resolve, reject) => {
