@@ -7,20 +7,16 @@ import {
 import { DATAREGISTRY_PROCESS_ID } from "../config";
 import { getMessageResultData } from "./utils";
 
-export const register = async (dataTag: string,
-  price: string, encSks: string, nonce: string,
-  encMsg: string, signer: any) => {
+export const register = async (dataTag: string, price: string, exData: string, signer: any) => {
   const msgId = await message({
     process: DATAREGISTRY_PROCESS_ID,
     tags: [
       { name: "Action", value: "Register" },
       { name: "DataTag", value: dataTag },
       { name: "Price", value: price },
-      { name: "Nonce", value: nonce },
-      { name: "EncMsg", value: encMsg },
     ],
     signer: signer,
-    data: encSks,
+    data: exData,
   });
 
   let Result = await result({

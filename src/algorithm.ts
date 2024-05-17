@@ -1,6 +1,6 @@
 import lhe from "./lib/lhe";
 
-export const THRESHOLD_2_3 = {t: 2, n: 3, indices: [1, 2, 3]};
+export const THRESHOLD_2_3 = { t: 2, n: 3, indices: [1, 2, 3] };
 
 const lhe_call = (func: any, param_obj: any) => {
     let param_json = JSON.stringify(param_obj);
@@ -18,14 +18,12 @@ const lhe_call = (func: any, param_obj: any) => {
 }
 
 export const keygen = (param_obj: any = THRESHOLD_2_3) => {
-    return lhe_call(lhe._keygen, param_obj); 
+    return lhe_call(lhe._keygen, param_obj);
 }
 
-export const encrypt = (publicKeys: string[],
-    data: Uint8Array,
-    threshold: any = THRESHOLD_2_3) => {
-    let param_obj = {...threshold, node_pks: publicKeys, msg:Array.from(data)};
-    return lhe_call(lhe._encrypt, param_obj); 
+export const encrypt = (publicKeys: string[], data: Uint8Array, threshold: any = THRESHOLD_2_3) => {
+    let param_obj = { ...threshold, node_pks: publicKeys, msg: Array.from(data) };
+    return lhe_call(lhe._encrypt, param_obj);
 }
 
 export const reencrypt = (
@@ -33,17 +31,19 @@ export const reencrypt = (
     node_sk: string,
     consumer_pk: string,
     threshold: any = THRESHOLD_2_3) => {
-        let param_obj = {...threshold, enc_sk: enc_sk, node_sk: node_sk, consumer_pk: consumer_pk};
-        return lhe_call(lhe._reencrypt, param_obj); 
+    let param_obj = { ...threshold, enc_sk: enc_sk, node_sk: node_sk, consumer_pk: consumer_pk };
+    return lhe_call(lhe._reencrypt, param_obj);
 }
 
 export const decrypt = (reenc_sks: string[],
     consumer_sk: string,
     nonce: string,
     enc_msg: string,
-    chosen_indices: any = [1,2],
+    chosen_indices: any = [1, 2],
     threshold: any = THRESHOLD_2_3) => {
-        let param_obj = {...threshold, reenc_sks: reenc_sks, consumer_sk: consumer_sk,
-            nonce:nonce, enc_msg: enc_msg, chosen_indices: chosen_indices};
-        return lhe_call(lhe._decrypt, param_obj); 
+    let param_obj = {
+        ...threshold, reenc_sks: reenc_sks, consumer_sk: consumer_sk,
+        nonce: nonce, enc_msg: enc_msg, chosen_indices: chosen_indices
+    };
+    return lhe_call(lhe._decrypt, param_obj);
 }
