@@ -29,13 +29,14 @@ const getNodeInfos = async (n: number, random: boolean = false): Promise<Array<n
     throw `Insufficient number of nodes, expect ${n}, actual ${nodesres.length}`;
   }
 
+  let selected_indices = Array.from({ length: nodesres.length }, (_, i) => i)
   if (random) {
-    //TODO
+    selected_indices.sort(function () { return 0.5 - Math.random(); });
   }
 
   let nodeInfos: Array<nodeInfo> = [];
-  for (var i = 0; i < nodesres.length && i < n; i++) {
-    let node = nodesres[i];
+  for (var i = 0; i < n; i++) {
+    let node = nodesres[selected_indices[i]];
     nodeInfos.push({
       org_index: parseInt(node.index),
       index: parseInt(node.index),
@@ -84,7 +85,7 @@ export const uploadData = async (data: Uint8Array, dataTag: any, priceInfo: Pric
     indices: [] as number[],
     names: [] as string[],
   };
-  let nodeInfos = await getNodeInfos(policy.n, false);
+  let nodeInfos = await getNodeInfos(policy.n, true);
   // console.log(nodeInfos);
 
   let nodesPublicKey = [] as string[];
