@@ -72,7 +72,7 @@ We got the `DATAID`, which `Data User` will use it next.
 export ARWALLETPATH="arweave-keyfile-<ADDRESS>.json"
 # here set a data id, the output of the previous step
 DATAID="<DATA ID>"
-node dist/demo/data_consumer.js $ARWALLETPATH $DATAID
+node dist/demo/data_user.js $ARWALLETPATH $DATAID
 ```
 
 
