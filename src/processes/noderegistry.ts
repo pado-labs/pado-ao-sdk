@@ -41,3 +41,22 @@ export const nodes = async () => {
   const nodes = Messages[0].Data;
   return nodes;
 }
+
+export const addWhiteList = async (addr: string, signer: any) => {
+  const msgId = await message({
+    process: NODEREGISTRY_PROCESS_ID,
+    tags: [
+      { name: "Action", value: "AddWhiteList" },
+      { name: "Address", value: addr },
+    ],
+    signer: signer,
+  });
+
+  let Result = await result({
+    message: msgId,
+    process: NODEREGISTRY_PROCESS_ID,
+  });
+
+  const res = getMessageResultData(Result);
+  return res;
+}
