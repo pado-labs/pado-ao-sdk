@@ -1,6 +1,5 @@
-import { generateKey, transferAOCREDToTask, submitTask, getResult } from "../index";
+import { generateKey, submitTask, getResult } from "../index";
 import { exit } from "node:process";
-import { createDataItemSigner } from "@permaweb/aoconnect";
 import { readFileSync } from "node:fs";
 import Arweave from 'arweave';
 
@@ -26,20 +25,13 @@ async function main() {
   // step 1: generate key pair
   let key = await generateKey();
 
-  // step 2: transfer some AOCRED to TASK-PROCESS
-  //    2.1: set your wallet, and the quantity
+
+  // step 2: submit a task(transfers is also included)
   const wallet = JSON.parse(readFileSync(walletpath).toString());
-  const signer = createDataItemSigner(wallet);
-
-  const quantity = "4";
-  let transferRes = await transferAOCREDToTask(quantity, signer);
-  console.log(`transferRes=${transferRes}`);
-
-  // step 3: submit a task
   const taskId = await submitTask(dataId, key.pk, wallet);
   console.log(`TASKID=${taskId}`);
 
-  // step 4: get the result
+  // step 3: get the result
   const [err, data] = await getResult(taskId, key.sk, arweave).then(data => [null, data]).catch(err => [err, null]);
   console.log(`err=${err}`);
   console.log(`data=${data}`);

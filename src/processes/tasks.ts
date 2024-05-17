@@ -37,6 +37,18 @@ export const getPendingTasks = async () => {
     return res;
 }
 
+
+export const getComputationPrice = async () => {
+    const { Messages } = await dryrun({
+        process: TASKS_PROCESS_ID,
+        tags: [
+            { name: 'Action', value: 'ComputationPrice' },
+        ],
+    });
+    const res = Messages[0].Data;
+    return res;
+};
+
 export const reportResult = async (taskId: string, nodeName: string,
     taskResult: string, signer: any) => {
     const msgId = await message({
