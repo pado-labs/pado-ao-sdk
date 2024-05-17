@@ -1,11 +1,11 @@
-import { createDataItemSigner } from '@permaweb/aoconnect';
-import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from './algorithm';
-import { nodes } from './processes/noderegistry';
-import { getDataById, register as dataRegister } from './processes/dataregistry';
-import { getCompletedTasksById, getComputationPrice, submit } from './processes/tasks';
-import { getDataFromAR, submitDataToAR } from './padoarweave';
-import Arweave from 'arweave';
-import { transferAOCREDToTask } from './processes/utils';
+import { createDataItemSigner } from "@permaweb/aoconnect";
+import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from "./algorithm";
+import { nodes } from "./processes/noderegistry";
+import { getDataById, register as dataRegister } from "./processes/dataregistry";
+import { getCompletedTasksById, getComputationPrice, submit } from "./processes/tasks";
+import { getDataFromAR, submitDataToAR } from "./padoarweave";
+import Arweave from "arweave";
+import { transferAOCREDToTask } from "./processes/utils";
 
 
 
