@@ -6,8 +6,11 @@ import { getCompletedTasksById, getComputationPrice, submit } from "./processes/
 import { getDataFromAR, submitDataToAR } from "./padoarweave";
 import Arweave from "arweave";
 import { transferAOCREDToTask } from "./processes/utils";
-export { allData } from './processes/dataregistry';
+import { allData } from './processes/dataregistry';
 
+export const listData = () => {
+  return  allData();
+};
 
 interface nodeInfo {
   org_index: number,
