@@ -1,7 +1,7 @@
 import { generateKey, submitTask, getResult } from "../index";
 import { exit } from "node:process";
 import { readFileSync } from "node:fs";
-import Arweave from 'arweave';
+import Arweave from "arweave";
 
 //TODO: Local test with ArLocal(`npx arlocal` to start)
 const arweave = Arweave.init({

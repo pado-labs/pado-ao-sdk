@@ -1,7 +1,7 @@
 import { uploadData } from "../index";
 import { readFileSync } from "node:fs";
 import { exit } from "node:process";
-import Arweave from 'arweave';
+import Arweave from "arweave";
 
 //TODO: Local test with ArLocal(`npx arlocal` to start)
 const arweave = Arweave.init({
