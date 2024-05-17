@@ -6,7 +6,7 @@ import { getCompletedTasksById, getComputationPrice, submit } from "./processes/
 import { getDataFromAR, submitDataToAR } from "./padoarweave";
 import Arweave from "arweave";
 import { transferAOCREDToTask } from "./processes/utils";
-export { getAllTasks } from './processes/tasks';
+export { allData } from './processes/dataregistry';
 
 
 interface nodeInfo {
