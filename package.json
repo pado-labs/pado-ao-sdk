@@ -19,8 +19,7 @@
     "lint": "eslint -c .eslintrc --ext .ts src",
     "format": "prettier --check --write src/**/*.ts  --config .prettierrc",
     "pretest:integration": "npm run build && npm link",
-    "test:integration": "cd ./test/e2e && npm test",
-    "publish": "npm publish --access public"
+    "publish": "rm -rf dist/demo dist/test && npm publish --access public"
   },
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.51",
