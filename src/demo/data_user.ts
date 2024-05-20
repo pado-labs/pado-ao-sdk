@@ -1,8 +1,12 @@
 import { generateKey, submitTask, getResult } from "../index";
-import { exit } from "node:process";
 import { readFileSync } from "node:fs";
+import { exit } from "node:process";
 import Arweave from "arweave";
 
+/**
+ * Usage:
+ *   node /path/to/data_user.js <your-wallet-path> <data-id>
+ */
 async function main() {
   const args = process.argv.slice(2)
   if (args.length < 1) {

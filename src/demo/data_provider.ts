@@ -3,6 +3,10 @@ import { readFileSync } from "node:fs";
 import { exit } from "node:process";
 import Arweave from "arweave";
 
+/**
+ * Usage:
+ *   node /path/to/data_user.js <your-wallet-path>
+ */
 async function main() {
   const args = process.argv.slice(2)
   if (args.length < 1) {
@@ -10,6 +14,7 @@ async function main() {
     exit(2);
   }
   let walletpath = args[0];
+  console.log(`walletpath=${walletpath}`);
 
   // load your arweave wallet
   const wallet = JSON.parse(readFileSync(walletpath).toString());
