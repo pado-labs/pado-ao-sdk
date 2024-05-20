@@ -5,7 +5,7 @@ import Arweave from "arweave";
 
 /**
  * Usage:
- *   node /path/to/data_user.js <your-wallet-path>
+ *   node /path/to/data_provider.js <your-wallet-path>
  */
 async function main() {
   const args = process.argv.slice(2)
