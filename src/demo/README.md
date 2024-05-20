@@ -1,17 +1,19 @@
 
 - [Overview](#overview)
-  - [Preparations](#preparations)
-- [Data Provider](#data-provider)
-- [Data User](#data-user)
+- [Preparations](#preparations)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Data Provider](#data-provider)
+  - [Data User](#data-user)
 
 
 ## Overview
 
+Here we will introduce the steps on how to use the **PADO AO SDK** with examples.
 
-We've provided two demos, [data_provider.ts](data_provider.ts) and [data_user.ts](data_user.ts),  of how to use the **PADO AO SDK** to get a quick overview of the entire process.
 
 
-### Preparations
+## Preparations
 
 
 - Install an arweave wallet from [ArConnect](https://www.arconnect.io/download).
@@ -19,8 +21,54 @@ We've provided two demos, [data_provider.ts](data_provider.ts) and [data_user.ts
 - Run `npx arlocal` to start a local testnet, then refer to [ArLocal](https://docs.arconnect.io/developer-tooling/arlocal-devtools), to mint some AR(TestToken) that will be used to interact with the local testnet.
 
 
+## Installation
 
-## Data Provider
+
+```sh
+npm install --save @padolabs/pado-ao-sdk
+```
+
+> Notes:
+>
+> - The minimum version of NodeJS required is 18+.
+
+
+## Usage
+
+There are two roles, the **Data Provider** and the **Data User**, and whichever role you are in, you need to load the wallet and initialize the arweave. 
+
+
+<br/>
+
+**load your arweave wallet**
+
+Referring to the previous preparation stage, export the wallet from ArConnect.
+
+```ts
+import { readFileSync } from "node:fs";
+let walletpath = "/path/to/your/arweave/wallet";
+const wallet = JSON.parse(readFileSync(walletpath).toString());
+```
+
+
+<br/>
+
+**init arweave**
+
+Make sure you have started arlocal, as mentioned earlier in the preparation phase.
+
+```ts
+import Arweave from "arweave";
+const arweave = Arweave.init({
+  host: '127.0.0.1',
+  port: 1984,
+  protocol: 'http'
+});
+```
+
+
+
+### Data Provider
 
 **prepare some data**
 
@@ -43,41 +91,14 @@ let dataTag = { "testtagkey": "testtagvalue" };
 
 **price for the data**
 
-**Importantly**, you can set a price for your data, and data users will pay you this defined price each time they use the data
+**Importantly**, you can set a price for your data, and the data users will pay you this defined price each time they use the data.
 
 ```ts
 let priceInfo = { price: "1", symbol: "AOCRED" };
 ```
 
-**NOTE:** Currently, only AOCRED(TestToken) is supported in 0.001 units. In the example above, 1 means 0.001 AOCRED(TestToken).
+**NOTE:** Currently, only **AOCRED**(TestToken) is supported. In the example above, 1 means 0.001 AOCRED(TestToken).
 
-
-<br/>
-
-**init arweave**
-
-Make sure you have started arlocal, as mentioned earlier in the preparation phase.
-
-```ts
-import Arweave from "arweave";
-const arweave = Arweave.init({
-  host: '127.0.0.1',
-  port: 1984,
-  protocol: 'http'
-});
-```
-
-<br/>
-
-**load your arweave wallet**
-
-Referring to the previous preparation stage, export the wallet from ArConnect.
-
-```ts
-import { readFileSync } from "node:fs";
-let walletpath = "/path/to/your/arweave/wallet";
-const wallet = JSON.parse(readFileSync(walletpath).toString());
-```
 
 <br/>
 
@@ -86,17 +107,22 @@ const wallet = JSON.parse(readFileSync(walletpath).toString());
 ```ts
 import { uploadData } from "@padolabs/pado-ao-sdk";
 const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave);
+console.log(`DATAID=${dataId}`);
 ```
 
-Without doubt, your data is encrypted before it's uploaded.
+Please be assured that your data is encrypted by the [zk-LHE](https://github.com/pado-labs/threshold-zk-LHE) before it is uploaded to Arweave.
 
-Congratulations! If everything is fine and there are no exceptions, you will get the `dataId`, and you can subsequently query the data you uploaded (encrypted) based on that ID.
+**Congratulations**! If everything is fine and there are no exceptions, you will get the `DATAID`, and you can subsequently query the data you uploaded based on that ID.
+
+<br/>
+
+The complete code can be found in [data_provider.ts](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/demo/data_provider.ts).
 
 
-## Data User
 
-**Important**: Before you do the next step, make sure that the wallet you exported in the previous step has enough `AOCRED` in it. Refer to [the ao documentation](https://cookbook_ao.g8way.io/welcome/index.html) to learn how to transfer token and more.
+### Data User
 
+**Important**: Before you do the next step, make sure that the wallet you exported in the previous step has enough `AOCRED` in it. Refer to [here](https://cookbook_ao.g8way.io/welcome/testnet-info/cred-and-quests.html#how-do-i-earn-cred) to learn how to earn test token.
 
 **generate key pair**
 
@@ -110,20 +136,6 @@ In practice, you **SHOULD** store the key to a file.
 
 <br/>
 
-**load your arweave wallet**
-
-Referring to the previous preparation stage, export the wallet from ArConnect.
-
-```ts
-import { readFileSync } from "node:fs";
-let walletpath = "/path/to/your/arweave/wallet";
-const wallet = JSON.parse(readFileSync(walletpath).toString());
-```
-
-
-
-<br/>
-
 **submit a task to AO process**
 
 Here, you need a dataId, which is returned by the Data Provider through the `uploadData`.
@@ -132,25 +144,10 @@ Here, you need a dataId, which is returned by the Data Provider through the `upl
 import { submitTask } from "@padolabs/pado-ao-sdk";
 let dataId = "xxxxxxxxxxxxxxxx";
 const taskId = await submitTask(dataId, key.pk, wallet);
+console.log(`TASKID=${taskId}`);
 ```
 
 This will return a task id which used for getting the result.
-
-<br/>
-
-**init arweave**
-
-Make sure you have started arlocal, as mentioned earlier in the preparation phase.
-
-```ts
-import Arweave from "arweave";
-const arweave = Arweave.init({
-  host: '127.0.0.1',
-  port: 1984,
-  protocol: 'http'
-});
-```
-
 
 
 <br/>
@@ -164,7 +161,7 @@ console.log(`err=${err}`);
 console.log(`data=${data}`);
 ```
 
-If nothing goes wrong, you will get the `data` from Data Provider.
+If nothing goes wrong, you will get the `data` of the Data Provider.
 
 If you follow the previous steps for the Data Provider, you will get the following output:
 
@@ -172,4 +169,8 @@ If you follow the previous steps for the Data Provider, you will get the followi
 err=null
 data=1,2,3,4,5,6,7,8
 ```
+
+<br/>
+
+The complete code can be found in [data_user.ts](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/demo/data_user.ts).
 
