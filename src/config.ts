@@ -2,3 +2,7 @@ export const NODEREGISTRY_PROCESS_ID = "Vlq4jWP6PLRo0Msjnxp8-vg9HalZv9e8tiz13OTK
 export const DATAREGISTRY_PROCESS_ID = "daYyE-QRXg2MBrX1E1lUmJ1hMR-GEmyrdUiUnv3dWLY";
 export const TASKS_PROCESS_ID = "fX6ek4jPhcpM0XIOw2CNO2xiOUYGPuaRHXztW9_JWsY";
 export const AOCRED_PROCESS_ID = "Sa0iBLPNyJQrwpTTG-tWLQU-1QeUAJA73DdxGGiKoJc";
+
+export const TASKTYPE = 'ZKLHEDataSharing';
+export const COMPUTELIMIT = '9000000000000';
+export const MEMORYLIMIT = '512M';
