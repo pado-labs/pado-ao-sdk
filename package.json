@@ -15,7 +15,6 @@
   ],
   "scripts": {
     "build": "rm -rf dist && tsc --build tsconfig.json && cp src/lib/lhe.wasm dist/lib/",
-    "test": "node --test ./src",
     "lint": "eslint -c .eslintrc --ext .ts src",
     "format": "prettier --check --write src/**/*.ts  --config .prettierrc",
     "pretest:integration": "npm run build && npm link",
