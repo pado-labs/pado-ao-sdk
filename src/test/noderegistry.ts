@@ -3,7 +3,7 @@ import { readFileSync } from "node:fs";
 import { createDataItemSigner } from "@permaweb/aoconnect";
 
 const addWhiteNodeOwner = async (addr: string) => {
-    const wallet = JSON.parse(readFileSync("/Users/fksyuan/.aos.json").toString());
+    const wallet = JSON.parse(readFileSync(process.env.HOME + "/.aos.json").toString());
     const signer = createDataItemSigner(wallet);
     const res = await addWhiteList(addr, signer);
     console.log("addWhiteNodeOwner res=", res);
