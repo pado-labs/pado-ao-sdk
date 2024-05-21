@@ -18,7 +18,7 @@ Here we will introduce the steps on how to use the [PADO AO SDK](https://docs.pa
 
 - Install an arweave wallet from [ArConnect](https://www.arconnect.io/download).
 - Export the wallet from ArConnect and store it to somewhere, such as the current folder.
-- Run `npx arlocal` to start a local testnet, then refer to [ArLocal](https://docs.arconnect.io/developer-tooling/arlocal-devtools), to mint some AR(TestToken) that will be used to interact with the local testnet.
+- **(Optional)** For local testing, you can run `npx arlocal` to start a local testnet, then refer to [ArLocal](https://docs.arconnect.io/developer-tooling/arlocal-devtools), to mint some AR(TestToken) that will be used to interact with the local testnet.
 
 
 ## Installation
@@ -46,6 +46,8 @@ Referring to the previous preparation stage, export the wallet from ArConnect.
 
 ```ts
 import { readFileSync } from "node:fs";
+
+// load your arweave wallet
 let walletpath = "/path/to/your/arweave/wallet";
 const wallet = JSON.parse(readFileSync(walletpath).toString());
 ```
@@ -55,17 +57,20 @@ const wallet = JSON.parse(readFileSync(walletpath).toString());
 
 **init arweave**
 
-Make sure you have started arlocal, as mentioned earlier in the preparation phase.
+By default, there is no need to set arweave, but for the Data Provider, some AR is required to upload data.
+
+If you are going to test locally, make sure you have started arlocal and mint some AR(TestToken), as mentioned earlier in the preparation phase.
 
 ```ts
 import Arweave from "arweave";
+
+// init arweave (ArLocal)
 const arweave = Arweave.init({
   host: '127.0.0.1',
   port: 1984,
   protocol: 'http'
 });
 ```
-
 
 
 ### Data Provider
