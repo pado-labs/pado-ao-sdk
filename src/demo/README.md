@@ -6,7 +6,7 @@
   - [Data Provider](#data-provider)
   - [Data User](#data-user)
 - [FAQ](#faq)
-  - [Q1: connect ENETUNREACH while using default Arweave?](#q1-connect-enetunreach-while-using-default-arweave)
+  - [Q1: "Error: connect ENETUNREACH" appears while using default Arweave?](#q1-error-connect-enetunreach-appears-while-using-default-arweave)
 
 
 ## Overview
@@ -184,7 +184,7 @@ The complete code can be found in [data_user.ts](https://github.com/pado-labs/pa
 
 ## FAQ
 
-### Q1: connect ENETUNREACH while using default Arweave?
+### Q1: "Error: connect ENETUNREACH" appears while using default Arweave?
 
 This is usually a network or proxy issue. There is a way to set up a proxy.
 
