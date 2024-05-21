@@ -5,6 +5,8 @@
 - [Usage](#usage)
   - [Data Provider](#data-provider)
   - [Data User](#data-user)
+- [FAQ](#faq)
+  - [Q1: connect ENETUNREACH while using default Arweave?](#q1-connect-enetunreach-while-using-default-arweave)
 
 
 ## Overview
@@ -178,4 +180,27 @@ data=1,2,3,4,5,6,7,8
 <br/>
 
 The complete code can be found in [data_user.ts](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/demo/data_user.ts).
+
+
+## FAQ
+
+### Q1: connect ENETUNREACH while using default Arweave?
+
+This is usually a network or proxy issue. There is a way to set up a proxy.
+
+- Copy the following code into a js file such as `proxy.js`.
+
+  ```js
+  import { ProxyAgent } from 'undici';
+
+  if (process.env.HTTPS_PROXY) {
+    const proxyAgent = new ProxyAgent(process.env.HTTPS_PROXY);
+    const nodeFetch = globalThis.fetch
+    globalThis.fetch = function (url, options) {
+      return nodeFetch(url, { ...options, dispatcher: proxyAgent })
+    }
+  }
+  ```
+- Add `import "./proxy.js"` to your `.ts` script.
+- Export `HTTPS_PROXY=your-proxy` in your terminal.
 
