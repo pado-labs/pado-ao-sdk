@@ -3,7 +3,7 @@ import Arweave from 'arweave';
 import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from './algorithm';
 import { COMPUTELIMIT, MEMORYLIMIT, TASKTYPE } from './config';
 import type { CommonObject, DataItems, KeyInfo, nodeInfo, PriceInfo } from './index.d';
-import { getDataFromAR, submitDataToAR } from './padoarweave';
+import { getDataFromAR, submitDataToAR, ARConfig } from './padoarweave';
 import { allData, register as dataRegister, getDataById } from './processes/dataregistry';
 import { nodes } from './processes/noderegistry';
 import { getComputationPrice as fetchComputationPrice, getCompletedTasksById, submit } from './processes/tasks';
@@ -25,7 +25,7 @@ export const uploadData = async (
   dataTag: CommonObject,
   priceInfo: PriceInfo,
   wallet: any,
-  arweave: Arweave = Arweave.init({})
+  arweave: Arweave = Arweave.init(ARConfig)
 ): Promise<string> => {
   if (data.length === 0) {
     throw new Error('The Data to be uploaded can not be empty');
@@ -153,7 +153,7 @@ export const submitTask = async (dataId: string, dataUserPk: string, wallet: any
 export const getResult = async (
   taskId: string,
   dataUserSk: string,
-  arweave: Arweave = Arweave.init({}),
+  arweave: Arweave = Arweave.init(ARConfig),
   timeout: number = 10000
 ): Promise<Uint8Array> => {
   const taskStr = await _getCompletedTaskPromise(taskId, timeout);
@@ -200,7 +200,7 @@ export const submitTaskAndGetResult = async (
   dataUserPk: string,
   dataUserSk: string,
   wallet: any,
-  arweave: Arweave = Arweave.init({}),
+  arweave: Arweave = Arweave.init(ARConfig),
   timeout: number = 10000
 ) => {
   const taskId = await submitTask(dataId, dataUserPk, wallet);

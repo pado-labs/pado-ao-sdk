@@ -1,5 +1,11 @@
 import Arweave from 'arweave';
 
+export const ARConfig = {
+  host: 'arweave.net',
+  port: 443,
+  protocol: 'https'
+};
+
 // submit data to AR
 export const submitDataToAR = async (arweave: Arweave, data: string | Uint8Array | ArrayBuffer, wallet: any) => {
     // Create a data transaction
