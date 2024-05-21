@@ -94,10 +94,10 @@ let dataTag = { "testtagkey": "testtagvalue" };
 **Importantly**, you can set a price for your data, and the data users will pay you this defined price each time they use the data.
 
 ```ts
-let priceInfo = { price: "1", symbol: "AOCRED" };
+let priceInfo = { price: "100", symbol: "AOCRED" };
 ```
 
-**NOTE:** Currently, only **AOCRED**(TestToken) is supported. In the example above, 1 means 0.001 AOCRED(TestToken).
+**NOTE:** Currently, only **AOCRED**(TestToken) is supported. In the example above, 100 means 0.1 AOCRED(TestToken).
 
 
 <br/>

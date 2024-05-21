@@ -34,7 +34,7 @@ async function main() {
   let dataTag = { "testtagkey": "testtagvalue" };
 
   // price for the data
-  let priceInfo = { price: "1", symbol: "AOCRED" };
+  let priceInfo = { price: "100", symbol: "AOCRED" };
 
   // upload your data
   const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave);
