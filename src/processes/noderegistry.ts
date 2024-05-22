@@ -27,8 +27,27 @@ export const register = async (name: string, pk: string, desc: string, signer: a
   return await register_or_update('Register', name, pk, desc, signer);
 }
 
-export const update = async (name: string, pk: string, desc: string, signer: any) => {
-  return await register_or_update('Update', name, pk, desc, signer);
+export const update = async (name: string, desc: string, signer: any) => {
+  return await register_or_update('Update', name, '', desc, signer);
+}
+
+export const deleteNode = async (name: string, signer: any) => {
+  const msgId = await message({
+    process: NODEREGISTRY_PROCESS_ID,
+    tags: [
+      { name: "Action", value: "Delete" },
+      { name: "Name", value: name },
+    ],
+    signer: signer,
+  });
+
+  let Result = await result({
+    message: msgId,
+    process: NODEREGISTRY_PROCESS_ID,
+  });
+
+  const res = getMessageResultData(Result);
+  return res;
 }
 
 export const nodes = async () => {
