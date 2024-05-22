@@ -1,7 +1,6 @@
 import { uploadData } from "../index";
 import { readFileSync } from "node:fs";
 import { exit } from "node:process";
-import Arweave from "arweave";
 
 /**
  * Usage:
@@ -19,14 +18,7 @@ async function main() {
   // load your arweave wallet
   const wallet = JSON.parse(readFileSync(walletpath).toString());
 
-  // init arweave (ArLocal)
-  const arweave = Arweave.init({
-    host: '127.0.0.1',
-    port: 1984,
-    protocol: 'http'
-  });
-
-
+  
   // prepare some data
   let data = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
 
@@ -36,8 +28,8 @@ async function main() {
   // price for the data
   let priceInfo = { price: "100", symbol: "AOCRED" };
 
-  // upload your data
-  const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave);
+  // upload your data (If you want to do a local test, refer to the README to initialize arweave and then pass it to uploadData)
+  const dataId = await uploadData(data, dataTag, priceInfo, wallet);
   console.log(`DATAID=${dataId}`);
 }
 main();

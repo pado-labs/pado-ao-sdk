@@ -1,7 +1,6 @@
 import { generateKey, submitTask, getResult } from "../index";
 import { readFileSync } from "node:fs";
 import { exit } from "node:process";
-import Arweave from "arweave";
 
 /**
  * Usage:
@@ -21,13 +20,6 @@ async function main() {
   // load your arweave wallet
   const wallet = JSON.parse(readFileSync(walletpath).toString());
 
-  // init arweave (ArLocal)
-  const arweave = Arweave.init({
-    host: '127.0.0.1',
-    port: 1984,
-    protocol: 'http'
-  });
-
 
   // generate key pair
   let key = await generateKey();
@@ -36,8 +28,8 @@ async function main() {
   const taskId = await submitTask(dataId, key.pk, wallet);
   console.log(`TASKID=${taskId}`);
 
-  // get the result
-  const [err, data] = await getResult(taskId, key.sk, arweave).then(data => [null, data]).catch(err => [err, null]);
+  // get the result (If you want to do a local test, refer to the README to initialize arweave and then pass it to getResult)
+  const [err, data] = await getResult(taskId, key.sk).then(data => [null, data]).catch(err => [err, null]);
   console.log(`err=${err}`);
   console.log(`data=${data}`);
 

@@ -113,7 +113,9 @@ let priceInfo = { price: "100", symbol: "AOCRED" };
 
 ```ts
 import { uploadData } from "@padolabs/pado-ao-sdk";
-const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave);
+
+// upload your data (If you want to do a local test, refer to the README to initialize arweave and then pass it to uploadData)
+const dataId = await uploadData(data, dataTag, priceInfo, wallet);
 console.log(`DATAID=${dataId}`);
 ```
 
@@ -163,7 +165,9 @@ This will return a task id which used for getting the result.
 
 ```ts
 import { getResult } from "@padolabs/pado-ao-sdk";
-const [err, data] = await getResult(taskId, key.sk, arweave).then(data => [null, data]).catch(err => [err, null]);
+
+// get the result (If you want to do a local test, refer to the README to initialize arweave and then pass it to getResult)
+const [err, data] = await getResult(taskId, key.sk).then(data => [null, data]).catch(err => [err, null]);
 console.log(`err=${err}`);
 console.log(`data=${data}`);
 ```
