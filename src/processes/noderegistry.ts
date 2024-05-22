@@ -27,8 +27,8 @@ export const register = async (name: string, pk: string, desc: string, signer: a
   return await register_or_update('Register', name, pk, desc, signer);
 }
 
-export const update = async (name: string, pk: string, desc: string, signer: any) => {
-  return await register_or_update('Update', name, pk, desc, signer);
+export const update = async (name: string, desc: string, signer: any) => {
+  return await register_or_update('Update', name, '', desc, signer);
 }
 
 export const deleteNode = async (name: string, signer: any) => {
