@@ -26,3 +26,5 @@ export type KeyInfo = {
   pk: string;
   sk: string;
 };
+export type createTransactionParamsTuple = [{ data: any }, any?];
+export type signParamsTuple = [any, any?];
