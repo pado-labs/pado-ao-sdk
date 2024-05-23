@@ -29,9 +29,26 @@ Data User obtains encrypted data from Arweave, obtains task results and data inf
 
 ## Install
 
+### Nodejs
+
 ```shell
 npm install --save @padolabs/pado-ao-sdk
 ```
+
+### Browser
+
+* Install sdk
+  ```shell
+  npm install --save @padolabs/pado-ao-sdk
+  ```
+
+* Copy [lhe.js](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/lib/lhe.js) and [lhe.wasm](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/lib/lhe.wasm) to static file directory of website in the packaging script.
+
+* Introduce lhe.js into the html file, for example:
+
+  ```html
+  <script async type="text/javascript" src="/assets/lhe.js"></script>
+  ```
 
 ## API
 
