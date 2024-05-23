@@ -1,4 +1,13 @@
-import lhe from "./lib/lhe";
+// @ts-nocheck
+
+var lhe;
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    import("./lib/lhe").then((lhei) => {
+        lhe = lhei;
+    })
+} else {
+    lhe = window.Module;
+}
 
 export const THRESHOLD_2_3 = { t: 2, n: 3, indices: [1, 2, 3] };
 
