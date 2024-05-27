@@ -1,6 +1,7 @@
 import { uploadData } from "../index";
 import { readFileSync } from "node:fs";
 import { exit } from "node:process";
+import "./proxy.js";
 
 /**
  * Usage:
