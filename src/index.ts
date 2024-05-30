@@ -170,17 +170,28 @@ export const getResult = async (
   encData = JSON.parse(encData);
   let exData = JSON.parse(encData.data);
 
-  // TODO: since only support THRESHOLD_2_3 at present, we choice the first t nodes
+  const t = exData.policy.t;
+  const n = exData.policy.n;
   let chosenIndices = [];
   let reencChosenSks = [];
-  for (let i = 0; i < THRESHOLD_2_3.t; i++) {
-    let index = exData.policy.indices[i];
-    chosenIndices.push(index);
-
+  for (let i = 0; i < n; i++) {
     let name = exData.policy.names[i];
-    const reencSksObj = JSON.parse(task.result[name]);
-    reencChosenSks.push(reencSksObj.reenc_sk);
+
+    if (task.result && task.result[name]) {
+      let index = exData.policy.indices[i];
+      chosenIndices.push(index);
+
+      const reencSksObj = JSON.parse(task.result[name]);
+      reencChosenSks.push(reencSksObj.reenc_sk);
+    }
+    if (chosenIndices.length >= t) {
+      break;
+    }
   }
+  if (chosenIndices.length < t) {
+    throw `Insufficient number of chosen nodes, expect at least ${t}, actual ${chosenIndices.length}`;
+  }
+
   const encMsg = await getDataFromAR(arweave, exData.transactionId);
   const res = decrypt(reencChosenSks, dataUserSk, exData.nonce, encMsg, chosenIndices);
   return new Uint8Array(res.msg);
