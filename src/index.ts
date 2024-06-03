@@ -76,7 +76,7 @@ export const uploadData = async (
  * @param dataStatus - The value is one of Valid/Invalid/All. Valid is to get valid data, Invalid is to get invalid data, and All is to get all data. The default is Valid.
  * @returns Return Array of all data, each item contains id, dataTag, price, from and data fields
  */
-export const listData = async (dataStatus: 'Valid' | 'Invalid' | 'All' | undefined = 'Valid'): Promise<DataItems> => {
+export const listData = async (dataStatus: string = 'Valid'): Promise<DataItems> => {
   const resStr = await allData(dataStatus);
   const res = JSON.parse(resStr);
   return res;
