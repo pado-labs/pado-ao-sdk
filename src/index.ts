@@ -3,7 +3,7 @@ import Arweave from 'arweave';
 import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from './algorithm';
 import { COMPUTELIMIT, MEMORYLIMIT, TASKTYPE } from './config';
 import type { CommonObject, DataItems, KeyInfo, nodeInfo, PriceInfo } from './index.d';
-import { getDataFromAR, submitDataToAR, ARConfig } from './padoarweave';
+import { ARConfig, getDataFromAR, submitDataToAR } from './padoarweave';
 import { allData, register as dataRegister, getDataById } from './processes/dataregistry';
 import { nodes } from './processes/noderegistry';
 import { getComputationPrice as fetchComputationPrice, getCompletedTasksById, submit } from './processes/tasks';
@@ -76,7 +76,7 @@ export const uploadData = async (
  * @param dataStatus - The value is one of Valid/Invalid/All. Valid is to get valid data, Invalid is to get invalid data, and All is to get all data. The default is Valid.
  * @returns Return Array of all data, each item contains id, dataTag, price, from and data fields
  */
-export const listData = async (dataStatus: string = "Valid"): Promise<DataItems> => {
+export const listData = async (dataStatus: 'Valid' | 'Invalid' | 'All' | undefined = 'Valid'): Promise<DataItems> => {
   const resStr = await allData(dataStatus);
   const res = JSON.parse(resStr);
   return res;
