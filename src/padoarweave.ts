@@ -47,7 +47,7 @@ export const submitDataToAR = async (arweave: Arweave, data: string | Uint8Array
   return transaction.id;
 };
 
-export const getDataFromAR = async (arweave: Arweave, transactionId: string): Promise<string> => {
-  const res = (await arweave.transactions.getData(transactionId, { decode: true, string: true })) as string;
+export const getDataFromAR = async (arweave: Arweave, transactionId: string): Promise<Uint8Array> => {
+  const res = (await arweave.transactions.getData(transactionId, { decode: true })) as Uint8Array;
   return res;
 };
