@@ -31,8 +31,21 @@ export const keygen = (param_obj: any = THRESHOLD_2_3) => {
 }
 
 export const encrypt = (publicKeys: string[], data: Uint8Array, threshold: any = THRESHOLD_2_3) => {
-    let param_obj = { ...threshold, node_pks: publicKeys, msg: Array.from(data) };
-    return lhe_call(lhe._encrypt, param_obj);
+    let msg_len = data.length;
+    let msg_ptr = lhe._malloc(msg_len);
+    let msg_buffer = new Uint8Array(lhe.wasmMemory.buffer, msg_ptr, msg_len);
+    msg_buffer.set(data);
+
+    let param_obj = { ...threshold, node_pks: publicKeys, msg_len: msg_len, msg_ptr: msg_ptr };
+
+    let res = lhe_call(lhe._encrypt, param_obj);
+    lhe._free(msg_ptr)
+
+    let dataview = new Uint8Array(lhe.wasmMemory.buffer, res.emsg_ptr, res.emsg_len);
+    res.enc_msg = new Uint8Array(dataview);
+    lhe._free(res.emsg_ptr)
+
+    return res;
 }
 
 export const reencrypt = (
@@ -47,12 +60,26 @@ export const reencrypt = (
 export const decrypt = (reenc_sks: string[],
     consumer_sk: string,
     nonce: string,
-    enc_msg: string,
+    enc_msg: Uint8Array,
     chosen_indices: any = [1, 2],
     threshold: any = THRESHOLD_2_3) => {
+
+    let emsg_len = enc_msg.length;
+    let emsg_ptr = lhe._malloc(emsg_len);
+    let emsg_buffer = new Uint8Array(lhe.wasmMemory.buffer, emsg_ptr, emsg_len);
+    emsg_buffer.set(enc_msg)
+
     let param_obj = {
         ...threshold, reenc_sks: reenc_sks, consumer_sk: consumer_sk,
-        nonce: nonce, enc_msg: enc_msg, chosen_indices: chosen_indices
+        nonce: nonce, emsg_ptr: emsg_ptr, emsg_len: emsg_len, chosen_indices: chosen_indices
     };
-    return lhe_call(lhe._decrypt, param_obj);
+
+    let res = lhe_call(lhe._decrypt, param_obj);
+    lhe._free(emsg_ptr)
+
+    let dataview = new Uint8Array(lhe.wasmMemory.buffer, res.msg_ptr, res.msg_len);
+    res.msg = new Uint8Array(dataview);
+    lhe._free(res.msg_ptr)
+
+    return res;
 }
