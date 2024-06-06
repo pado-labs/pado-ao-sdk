@@ -22,6 +22,7 @@
   },
   "dependencies": {
     "@permaweb/aoconnect": "^0.0.51",
+    "arseeding-js": "^0.0.31",
     "arweave": "^1.15.0"
   },
   "devDependencies": {
