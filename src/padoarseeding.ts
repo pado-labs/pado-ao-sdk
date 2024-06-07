@@ -15,7 +15,6 @@ export const submitDataToArseeding = async (data: Uint8Array, wallet: any, tag: 
     // This is explorer
     signer = new InjectedArweaveSigner(wallet);
   }
-  console.log('signer', signer);
   // @ts-ignore
   await signer.sign(data.buffer);
   const options = {
@@ -34,11 +33,29 @@ export const submitDataToArseeding = async (data: Uint8Array, wallet: any, tag: 
     arseedUrl: arseedingUrl,
     tag: tag
   };
-  console.log('config', config);
-  // fileArrayBuffer = Buffer.from('This is test data!')
   // @ts-ignore
   const order = await createAndSubmitItem(data.buffer, options, config);
   console.log('order', order);
 
-  return order;
+  return order.itemId;
+};
+
+export const getDataFromArseeding = async (transactionId: string): Promise<Uint8Array> => {
+  try {
+    const response = await fetch(arseedingUrl + '/' + transactionId, { method: 'GET' });
+
+    if (!response.ok) {
+      console.log(response);
+      throw new Error(`Get data failed! Status: ${response.status}`);
+    }
+
+    const blob = await response.blob();
+
+    const arrayBuffer = await blob.arrayBuffer();
+
+    return new Uint8Array(arrayBuffer);
+  } catch (error) {
+    console.error('get data failed:', error);
+    throw error;
+  }
 };

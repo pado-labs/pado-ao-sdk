@@ -4,7 +4,7 @@ import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from './algorithm';
 import { COMPUTELIMIT, MEMORYLIMIT, TASKTYPE } from './config';
 import type { CommonObject, DataItems, KeyInfo, nodeInfo, PriceInfo } from './index.d';
 import { ARConfig, getDataFromAR, submitDataToAR } from './padoarweave';
-import { submitDataToArseeding } from './padoarseeding';
+import { getDataFromArseeding, submitDataToArseeding } from './padoarseeding';
 import { allData, register as dataRegister, getDataById } from './processes/dataregistry';
 import { nodes } from './processes/noderegistry';
 import { getComputationPrice as fetchComputationPrice, getCompletedTasksById, submit } from './processes/tasks';
@@ -59,8 +59,10 @@ export const uploadData = async (
   let transactionId;
   if (extParam && extParam.uploadParam && StorageType.ARSEEDING === extParam.uploadParam.storageType) {
     console.log('storageType:', extParam.uploadParam.storageType);
+    dataTag['storageType'] = StorageType.ARSEEDING;
     transactionId = await submitDataToArseeding(res.enc_msg, wallet, extParam.uploadParam.symbolTag);
   } else {
+    dataTag['storageType'] = StorageType.ARWEAVE;
     transactionId = await submitDataToAR(arweave, res.enc_msg, wallet);
   }
 
@@ -170,7 +172,7 @@ export const getResult = async (
   taskId: string,
   dataUserSk: string,
   arweave: Arweave = Arweave.init(ARConfig),
-  timeout: number = 10000
+  timeout: number = 10000,
 ): Promise<Uint8Array> => {
   const taskStr = await _getCompletedTaskPromise(taskId, timeout);
   const task = JSON.parse(taskStr);
@@ -183,7 +185,8 @@ export const getResult = async (
   let encData = await getDataById(dataId);
   encData = JSON.parse(encData);
   let exData = JSON.parse(encData.data);
-
+  const dataTag = JSON.parse(encData.dataTag);
+  const storageType = dataTag?.storageType;
   const t = exData.policy.t;
   const n = exData.policy.n;
   let chosenIndices = [];
@@ -205,8 +208,13 @@ export const getResult = async (
   if (chosenIndices.length < t) {
     throw `Insufficient number of chosen nodes, expect at least ${t}, actual ${chosenIndices.length}`;
   }
+  let encMsg;
+  if(StorageType.ARSEEDING === storageType){
+     encMsg = await getDataFromArseeding( exData.transactionId);
+  }else {
+     encMsg = await getDataFromAR(arweave, exData.transactionId);
+  }
 
-  const encMsg = await getDataFromAR(arweave, exData.transactionId);
   const res = decrypt(reencChosenSks, dataUserSk, exData.nonce, encMsg, chosenIndices);
   return new Uint8Array(res.msg);
 };
