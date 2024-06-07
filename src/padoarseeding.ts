@@ -11,12 +11,14 @@ export const submitDataToArseeding = async (data: Uint8Array, wallet: any, tag: 
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     // This is Node.js
     signer = new ArweaveSigner(wallet);
+
   } else {
     // This is explorer
     signer = new InjectedArweaveSigner(wallet);
+    // @ts-ignore
+    await signer.sign(data.buffer);
   }
-  // @ts-ignore
-  await signer.sign(data.buffer);
+
   const options = {
     tags: [
       { name: 'k1', value: 'v1' },
@@ -24,9 +26,6 @@ export const submitDataToArseeding = async (data: Uint8Array, wallet: any, tag: 
       // {name: "Content-Type", value: "text/plain"}
     ]
   };
-  console.log('options', options);
-  console.log('tag', tag);
-  // const rsp  getTokenTagByEver('ar')
   const config = {
     signer: signer,
     path: '',
@@ -36,7 +35,14 @@ export const submitDataToArseeding = async (data: Uint8Array, wallet: any, tag: 
   // @ts-ignore
   const order = await createAndSubmitItem(data.buffer, options, config);
   console.log('order', order);
+  //pay for order
+  if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+    //nodejs
 
+  } else {
+    //explorer
+
+  }
   return order.itemId;
 };
 
