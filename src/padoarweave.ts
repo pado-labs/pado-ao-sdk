@@ -1,5 +1,6 @@
 import Arweave from 'arweave';
 import type { createTransactionParamsTuple, signParamsTuple } from './index.d';
+import { bundleAndSignData, createData, ArweaveSigner, Bundle } from "arbundles";
 
 export const ARConfig = {
   host: 'arweave.net',
@@ -8,10 +9,13 @@ export const ARConfig = {
 };
 
 // submit data to AR
-export const submitDataToAR = async (arweave: Arweave, data: string | Uint8Array | ArrayBuffer, wallet: any) => {
+export const submitDataToAR = async (arweave: Arweave, data: string | Uint8Array, wallet: any) => {
+  const signer = new ArweaveSigner(wallet);
+  const dataItems = [createData(data, signer)];
+  const bundle = await bundleAndSignData(dataItems, signer);
   let createTransactionParams: createTransactionParamsTuple = [
     {
-      data: data
+      data: bundle.getRaw()
     }
   ];
   let signParams: signParamsTuple = [undefined];
@@ -49,5 +53,7 @@ export const submitDataToAR = async (arweave: Arweave, data: string | Uint8Array
 
 export const getDataFromAR = async (arweave: Arweave, transactionId: string): Promise<Uint8Array> => {
   const res = (await arweave.transactions.getData(transactionId, { decode: true })) as Uint8Array;
-  return res;
+  const bundle = new Bundle(Buffer.from(res));
+  const data = bundle.get(0);
+  return new Uint8Array(data.rawData);
 };
