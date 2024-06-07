@@ -29,7 +29,6 @@ export const submitDataToAR = async (arweave: Arweave, data: string | Uint8Array
 
   // Sign a transaction
   await arweave.transactions.sign(...signParams);
-
   // Submit a transaction
   // {
   //   // way1: for small

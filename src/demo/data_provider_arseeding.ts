@@ -2,6 +2,8 @@ import { uploadData } from "../index";
 import { readFileSync } from "node:fs";
 import { exit } from "node:process";
 import "./proxy.js";
+import Arweave from 'arweave';
+import { ARConfig } from 'padoarweave';
 
 /**
  * Usage:
@@ -35,7 +37,8 @@ async function main() {
       storageType: 'arseeding', symbolTag: 'arweave,ethereum-ar-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,0x4fadc7a98f2dc96510e42dd1a74141eeae0c1543'
     }
   }
-  const dataId = await uploadData(data, dataTag, priceInfo, wallet, undefined ,extParam);
+  const arweave = Arweave.init(ARConfig)
+  const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave ,extParam);
   console.log(`DATAID=${dataId}`);
 }
 main();

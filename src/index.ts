@@ -60,7 +60,7 @@ export const uploadData = async (
   if (extParam && extParam.uploadParam && StorageType.ARSEEDING === extParam.uploadParam.storageType) {
     console.log('storageType:', extParam.uploadParam.storageType);
     dataTag['storageType'] = StorageType.ARSEEDING;
-    transactionId = await submitDataToArseeding(res.enc_msg, wallet, extParam.uploadParam.symbolTag);
+    transactionId = await submitDataToArseeding(arweave,res.enc_msg, wallet, extParam.uploadParam.symbolTag);
   } else {
     dataTag['storageType'] = StorageType.ARWEAVE;
     transactionId = await submitDataToAR(arweave, res.enc_msg, wallet);
