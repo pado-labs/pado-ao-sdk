@@ -42,26 +42,26 @@ export const submitDataToArseeding = async (arweave: Arweave,data: Uint8Array, w
   if (typeof process !== 'undefined' && process.versions && process.versions.node) {
     //nodejs
     const address = await arweave.wallets.jwkToAddress(wallet);
-    const pay = newEverpayByRSA(wallet, address)
+    const pay = newEverpayByRSA(wallet, address);
     // pay
-    const everHash = await payOrder(pay, order)
-    console.log('everHash:', everHash)
+    const everHash = await payOrder(pay, order);
+    console.log('everHash:', everHash);
   } else {
     //explorer
-    const arAddress = await window.arweaveWallet.getActiveAddress()
-    let chainTyp =  tag.split('-')[0]
+    const arAddress = await window.arweaveWallet.getActiveAddress();
+    let chainTyp =  tag.split('-')[0];
     if (chainTyp.indexOf(',') !== -1) {
       chainTyp = chainTyp.split(',')[0];
     }
-    console.log('chainType',chainTyp)
+    console.log('chainType',chainTyp);
     const pay = new Everpay({
       account: arAddress,
       chainType: chainTyp as ChainType,
       arJWK: 'use_wallet'
-    })
+    });
     // pay
-    const everHash = await payOrder(pay, order)
-    console.log(everHash)
+    const everHash = await payOrder(pay, order);
+    console.log(everHash);
   }
   return order.itemId;
 };
