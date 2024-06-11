@@ -4,6 +4,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
   - [Data Provider](#data-provider)
+  - [Data Provider (with Arseeding)](#data-provider-with-arseeding)
   - [Data User](#data-user)
 - [FAQ](#faq)
   - [Q1: "Error: connect ENETUNREACH" appears while using default Arweave?](#q1-error-connect-enetunreach-appears-while-using-default-arweave)
@@ -126,6 +127,35 @@ Please be assured that your data is encrypted by the [zk-LHE](https://github.com
 <br/>
 
 The complete code can be found in [data_provider.ts](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/demo/data_provider.ts).
+
+
+### Data Provider (with Arseeding)
+
+By default, we use AR native transaction/data, as described in the previous section. However, the Arweave ecosystem itself has [some issues](https://web3infra.dev/docs/arseeding/introduction/lightNode/#why-we-need-arseeding). In order **not** to suffer from these issues, the PADO AO SDK supports using [Arseeding](https://web3infra.dev/docs/arseeding/introduction/lightNode).
+
+For developers, it is very easy to use Arseeding in the SDK. The only difference from the previous section is **upload your data**.
+
+
+Set `extParam` and pass it to `uploadData`.
+
+```ts
+const extParam = {
+  uploadParam: {
+    storageType: 'arseeding', symbolTag: 'arweave,ethereum-ar-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,0x4fadc7a98f2dc96510e42dd1a74141eeae0c1543'
+  }
+}
+
+// upload your data (If you want to do a local test, refer to the README to initialize arweave and then pass it to uploadData)
+const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave, extParam);
+```
+
+**NOTE:** To use Arseeding, you need to first transfer some AR to [everPay](https://app.everpay.io/).
+
+
+
+<br/>
+
+The complete code can be found in [data_provider_arseeding.ts](https://github.com/pado-labs/pado-ao-sdk/blob/main/src/demo/data_provider_arseeding.ts).
 
 
 
