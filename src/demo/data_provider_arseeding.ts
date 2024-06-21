@@ -20,7 +20,7 @@ async function main() {
   // load your arweave wallet
   const wallet = JSON.parse(readFileSync(walletpath).toString());
 
-  
+
   // prepare some data
   let data = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
 
@@ -28,7 +28,7 @@ async function main() {
   let dataTag = { "testtagkey": "testtagvalue" };
 
   // price for the data
-  let priceInfo = { price: "100", symbol: "AOCRED" };
+  let priceInfo = { price: "200000000", symbol: "wAR" };
 
   // upload your data (If you want to do a local test, refer to the README to initialize arweave and then pass it to uploadData)
   const extParam = {
@@ -42,7 +42,7 @@ async function main() {
     protocol: 'https'
   };
   const arweave = Arweave.init(ARConfig)
-  const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave ,extParam);
+  const dataId = await uploadData(data, dataTag, priceInfo, wallet, arweave, extParam);
   console.log(`DATAID=${dataId}`);
 }
 main();
