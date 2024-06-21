@@ -1,5 +1,5 @@
 import { result, message } from "@permaweb/aoconnect";
-import { AOCRED_PROCESS_ID, TASKS_PROCESS_ID } from "../config";
+import { AOCRED_PROCESS_ID, WAR_PROCESS_ID, TASKS_PROCESS_ID } from "../config";
 
 export const getTag = (Message: any, Tag: string) => {
   const Tags = Message.Tags
@@ -71,6 +71,11 @@ export const transfer = async (from: string, recipient: string, quantity: string
 
 export const transferAOCREDToTask = async (quantity: string, signer: any) => {
   const res = await transfer(AOCRED_PROCESS_ID, TASKS_PROCESS_ID, quantity, signer);
+  return res;
+}
+
+export const transferWARToTask = async (quantity: string, signer: any) => {
+  const res = await transfer(WAR_PROCESS_ID, TASKS_PROCESS_ID, quantity, signer);
   return res;
 }
 
