@@ -172,8 +172,7 @@ export const submitTask = async (dataId: string, dataUserPk: string, wallet: any
   const nodeNames = exData.policy.names;
   const priceObj = JSON.parse(encData.price);
   const symbol = priceObj.symbol;
-  if ((symbol === 'AOCRED') || (symbol === 'wAR')) {
-  } else {
+  if ((symbol !== 'AOCRED') && (symbol !== 'wAR')) {
     throw new Error('Only support AOCRED/wAR now!');
   }
 
@@ -299,10 +298,11 @@ export const submitTaskAndGetResult = async (
 /**
  * Get the computing price of each node for each task. Now only supports wAR(the Wrapped AR in AO), minimum unit to use wAR(1 means 0.000000000001 wAR).
  *
+ * @param symbol - The price symbol (default: wAR).
  * @returns The computing price of a node
  */
-export const getComputationPrice = async (): Promise<string> => {
-  const res = await fetchComputationPrice();
+export const getComputationPrice = async (symbol: string = "wAR"): Promise<string> => {
+  const res = await fetchComputationPrice(symbol);
   return res;
 };
 

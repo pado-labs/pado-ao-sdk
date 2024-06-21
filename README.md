@@ -290,7 +290,7 @@ Submit a task to AO and get the result. The combination of submitTask and getRes
 Get the computing price of each node for each task. Now only supports wAR(the Wrapped AR in AO), minimum unit to use wAR(1 means 0.000000000001 wAR).
 
 * **Parameters:** 
-  * `symbol:number(optional)` The price symbol (default: wAR).
+  * `symbol:string(optional)` The price symbol (default: wAR).
 
 * **Returns:**
 

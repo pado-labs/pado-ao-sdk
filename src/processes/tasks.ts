@@ -38,7 +38,7 @@ export const getPendingTasks = async () => {
 }
 
 
-export const getComputationPrice = async (symbol: string = "wAR") => {
+export const getComputationPrice = async (symbol: string) => {
     const { Messages } = await dryrun({
         process: TASKS_PROCESS_ID,
         tags: [
