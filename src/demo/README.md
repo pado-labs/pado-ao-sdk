@@ -102,10 +102,10 @@ let dataTag = { "testtagkey": "testtagvalue" };
 **Importantly**, you can set a price for your data, and the data users will pay you this defined price each time they use the data.
 
 ```ts
-let priceInfo = { price: "100", symbol: "AOCRED" };
+let priceInfo = { price: "200000000", symbol: "wAR" };
 ```
 
-**NOTE:** Currently, only **AOCRED**(TestToken) is supported. In the example above, 100 means 0.1 AOCRED(TestToken).
+**NOTE:** Currently, only **wAR(the Wrapped AR in AO)** is supported. In the example above, 200000000 means 0.0002 wAR.
 
 
 <br/>
@@ -161,7 +161,7 @@ The complete code can be found in [data_provider_arseeding.ts](https://github.co
 
 ### Data User
 
-**Important**: Before you do the next step, make sure that the wallet you exported in the previous step has enough `AOCRED` in it. Refer to [here](https://cookbook_ao.g8way.io/welcome/testnet-info/cred-and-quests.html#how-do-i-earn-cred) to learn how to earn test token.
+**Important**: Before you do the next step, make sure that the wallet you exported in the previous step has enough `wAR(the Wrapped AR in AO)` in it. Refer to [here](https://aox.xyz/#/beta) to transfer some AR from Arweave into AO.
 
 **generate key pair**
 
