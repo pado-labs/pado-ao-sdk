@@ -9,7 +9,13 @@ import { allData, register as dataRegister, getDataById } from './processes/data
 import { nodes } from './processes/noderegistry';
 import { getComputationPrice as fetchComputationPrice, getCompletedTasksById, submit } from './processes/tasks';
 import { transferAOCREDToTask, transferWARToTask } from './processes/utils';
-
+import Data from './core/Data'
+import Task from './core/Task'
+import Fee from './core/Fee'
+import * as utils from './core/utils'
+export {
+  Data,Task,Fee,utils
+}
 export enum StorageType {
   ARWEAVE = 'arweave',
   ARSEEDING = 'arseeding'

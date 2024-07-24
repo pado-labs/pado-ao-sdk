@@ -43,6 +43,12 @@ export default class Data implements IData {
     this.chainName = chainName;
   }
 
+  /**
+   * Encrypt data
+   *
+   * @param data - plain data need to encrypt
+   * @returns The encrypted data
+   */
   async encryptData(data: Uint8Array): Promise<CommonObject> {
     if (data.length === 0) {
       throw new Error('The Data to be encrypted can not be empty');
@@ -68,6 +74,20 @@ export default class Data implements IData {
     return Object.assign(res, { policy });
   }
 
+  /**
+   * submit encrypted data to  decentralized storage blockchains such as Arweave and Filecoin.
+   *
+   * @param encryptedData - encrypted data need to upload
+   * @param dataTag - the data meta info object
+   * @param priceInfo - The data price symbol(symbol is optional, default is wAR) and price. Currently only wAR(the Wrapped AR in AO) is supported, with a minimum price unit of 1 (1 means 0.000000000001 wAR).
+   * @param wallet - The ar wallet json object, this wallet must have AR Token. Pass `window.arweaveWallet` in a browser
+   * @param extParam - The extParam object, which can be used to pass additional parameters to the upload process
+   *                    - uploadParam : The uploadParam object, which can be used to pass additional parameters to the upload process
+   *                        - storageType : The storage type, default is ARWEAVE
+   *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
+   * @param policy  - threshold
+   * @returns The uploaded encrypted data id
+   */
   async submitData(
     encryptedData: CommonObject,
     dataTag: CommonObject,
@@ -105,7 +125,7 @@ export default class Data implements IData {
       encSks: encryptedData.enc_sks
     };
 
-    priceInfo.symbol = priceInfo.symbol || 'AOCRED';
+    priceInfo.symbol = priceInfo.symbol || 'wAR';
     const dataRes = await dataRegister(
       JSON.stringify(dataTag),
       JSON.stringify(priceInfo),
@@ -117,6 +137,20 @@ export default class Data implements IData {
     return dataRes;
   }
 
+  /**
+   * Encrypt data and upload encrypted data to decentralized storage blockchains such as Arweave and Filecoin.The combination of encryptData and submitData.
+   *
+   * @param data - plain data need to encrypt and upload
+   * @param dataTag - the data meta info object
+   * @param priceInfo - The data price symbol(symbol is optional, default is wAR) and price. Currently only wAR(the Wrapped AR in AO) is supported, with a minimum price unit of 1 (1 means 0.000000000001 wAR).
+   * @param wallet - The ar wallet json object, this wallet must have AR Token. Pass `window.arweaveWallet` in a browser
+   * @param extParam - The extParam object, which can be used to pass additional parameters to the upload process
+   *                    - uploadParam : The uploadParam object, which can be used to pass additional parameters to the upload process
+   *                        - storageType : The storage type, default is ARWEAVE
+   *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
+   * @param policy  - threshold
+   * @returns The uploaded encrypted data id
+   */
   async uploadData(
     data: Uint8Array,
     dataTag: CommonObject,
@@ -130,14 +164,28 @@ export default class Data implements IData {
     return dataId;
   }
 
+  /**
+   * Get the encrypted data info
+   *
+   * @param dataStatus - The value is one of Valid/Invalid/All. Valid is to get valid data, Invalid is to get invalid data, and All is to get all data. The default is Valid.
+   * @returns Return Array of all data, each item contains id, dataTag, price, from and data fields
+   */
   async listData(dataStatus = 'Valid'): Promise<DataItems> {
     const resStr = await allData(dataStatus);
     const res = JSON.parse(resStr);
     return res;
   }
 
+  /**
+   * Get the encrypted data info by data id
+   *
+   * @param dataId - The id of the data.
+   * @returns Return Array of all data, each item contains id, dataTag, price, from and data fields
+   */
   async getDataById(dataId: string): Promise<DataItem> {
+    console.log('getDataById1=', dataId);
     let encData = await getDataInfoById(dataId);
+    console.log('getDataById2=', encData);
     return JSON.parse(encData);
   }
 
