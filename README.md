@@ -145,8 +145,8 @@ Submit encrypted data to the storage chain.
   - `dataTag:CommonObject` The data meta info object.
   - `priceInfo:PriceInfo` The data price symbol(symbol is optional, default is wAR, with a minimum price unit of 1 (1 means 0.000000000001 wAR) and price. 
   - `wallet:any` The ar wallet json object, this wallet must have AR Token. Pass `window.arweaveWallet` in a browser.
-  - `policy:Policy` threshold
   - `extParam(optional)` The extParam object, which can be used to pass additional parameters to the upload process.Usage can in the following example. By default, we use AR native transaction/data.
+  - `policy:Policy` threshold
 
 - **Returns:**
 
@@ -211,11 +211,11 @@ Get the encrypted data info by data id
 
 - **Parameters:**
 
-  - `dataId: string` data id
+  - `dataId: string` The id of the data.
 
 - **Returns:**
 
-  - `Promise<DataItems>` Return the data, which contains id, dataTag, price, from and data fields.
+  - `Promise<DataItem>` Return the data, which contains id, dataTag, price, from and data fields.
 
 - **Example:**
 
@@ -272,9 +272,9 @@ Submit a task to PADO Network. And must pay the data fee corresponding to the da
 
   ```typescript
   import { readFileSync } from 'node:fs';
-  import { Task, Utils } from '@padolabs/pado-ao-sdk';
+  import { Task, utils } from '@padolabs/pado-ao-sdk';
 
-  let key = await Utils.generateKey();
+  let key = await utils.generateKey();
   const wallet = JSON.parse(readFileSync(walletpath).toString());
   const taskInstance = new Task('ao');
   const taskId = await taskInstance.submitTask(dataId, key.pk, wallet);
@@ -393,16 +393,16 @@ transfer accounts
   const res = await helperInstance.transfer('0x1', '0x2', '1', signer);
   ```
 
-### Utils
+### utils
 
-Some utility functions. includes generateKey,transfer,decrypt,encrypt.
+Some utility functions. includes getSupportedChains,generateKey,transfer,decrypt,encrypt.
 
 - **Example:**
 
   ```typescript
-  import { Utils } from '@padolabs/pado-network-sdk';
+  import { utils } from '@padolabs/pado-network-sdk';
 
-  const kp = Utils.generateKey();
+  const kp = utils.generateKey();
   ```
 
 #### getSupportedChains
@@ -412,32 +412,43 @@ Get a list of supported chains.
 - **Parameters:** NULL.
 - **Returns:**
 
-  - `string[]` Return a list of supported chain names
+  - `string[]` Return a list of supported chain names.
 
 - **Example:**
 
   ```typescript
-  import { Utils } from '@padolabs/pado-ao-sdk';
+  import { utils } from '@padolabs/pado-ao-sdk';
 
-  const chainList = await Utils.getSupportedChains();
+  const chainList = await utils.getSupportedChains();
   console.log('chainList', chainList);
+  ```
+#### generateKey
+
+Generate private and public key pair.
+
+- **Parameters:** NULL.
+- **Returns:**
+
+  - `KeyInfo` Return the key pair object which contains pk and sk fields.
+
+- **Example:**
+
+  ```typescript
+  import { utils } from '@padolabs/pado-ao-sdk';
+
+  const keyPair = await utils.generateKey();
+  console.log('keyPair', keyPair);
   ```
 
 #### encrypt
 
-The encryption method of the algorithm
+The encryption method of the algorithm.
 
 - **Parameters:**
 
-  - type Policy = {
-    t: number,
-    n: number,
-    indices: number[],
-    names: string[]
-    };
   - `publicKeys:string[]` List of public keys corresponding to the selected workers.
-  - `data:Uint8Array` Data that to be encrypted
-  - `policy:<Policy>` Some information about workers involved in encryption
+  - `data:Uint8Array` Data that to be encrypted.
+  - `policyInfo:<PolicyInfo>` Some information about workers involved in encryption.
 
 - **Returns:**
 
@@ -446,30 +457,30 @@ The encryption method of the algorithm
 - **Example:**
 
   ```typescript
-  import { Utils } from '@padolabs/pado-network-sdk';
+  import { utils } from '@padolabs/pado-network-sdk';
 
   let data = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
-  const policy = {
+  const policyInfo = {
     t: 2,
     n: 3,
     indices: [1, 2, 3],
     names: ['testnode2', 'testnode3', 'testnode1']
   };
-  const res = await Utils.encrypt(['0x1'], data, policy);
+  const res = await utils.encrypt(['0x1'], data, policyInfo);
   ```
 
 #### decrypt
 
-The decryption method of the algorithm
+The decryption method of the algorithm.
 
 - **Parameters:**
 
   - `reenc_sks:string[]` List of private keys corresponding to the selected workers.
-  - `consumer_sk:string` Consumer's private key
+  - `consumer_sk:string` Consumer's private key.
   - `nonce:string` 
   - `enc_msg:Uint8Array` 
   - `chosen_indices:number[]` .
-  - `threshold: <THRESHOLD_2_3> (optional)`
+  - `threshold: any (optional)`
 
 - **Returns:**
 
@@ -478,10 +489,10 @@ The decryption method of the algorithm
 - **Example:**
 
   ```typescript
-  import { Utils } from '@padolabs/pado-network-sdk';
+  import { utils } from '@padolabs/pado-network-sdk';
 
   let data = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
-  const res = await Utils.decrypt(['001', '002', '003'], '0x4', '78c80dfbcbca7c549ec5bcc6', data, [1, 2, 3]);
+  const res = await utils.decrypt(['001', '002', '003'], '0x4', '78c80dfbcbca7c549ec5bcc6', data, [1, 2, 3]);
   ```
 
 ## Building
