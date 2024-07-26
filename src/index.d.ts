@@ -1,10 +1,10 @@
 export interface PriceInfo {
   price: string;
-  symbol?: string;
+  symbol: string;
 }
 export interface PriceInfoT {
   price: Uint256; // The price of data
-  tokenSymbol?: string; // The token symbol of price
+  tokenSymbol: string; // The token symbol of price
 }
 
 export type CommonObject = {
@@ -43,8 +43,7 @@ export type KeyInfo = {
 export type createTransactionParamsTuple = [{ data: any }, any?];
 export type signParamsTuple = [any, any?];
 
-// --- contract EncryptionSchema
-export type Policy = {
+export type EncryptionSchema = {
   t: Bytes32; // threshold
   n: Bytes32; // total amount of nodes
 };
@@ -96,3 +95,7 @@ type Uint64 = bigint;
 type Uint256 = bigint;
 type Bool = boolean;
 type Address = string;
+
+
+
+type PrepareRegistryReturnType = [Bytes32, Bytes[]];

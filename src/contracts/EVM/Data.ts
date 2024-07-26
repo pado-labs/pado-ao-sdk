@@ -1,44 +1,51 @@
+;
+
 // import { Contract  } from '@ethersproject/contracts';
 // import { Web3Provider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
-import { DATACONTRACTADDRESSES } from '../config';
-import type { Address, Bytes, Bytes32, ChainName, DataItem, DataItems, Policy, PriceInfoT } from '../index.d';
-
-type PrepareRegistryReturnType = [Bytes32, Bytes[]];
+import type { Address, Bytes, Bytes32, ChainName, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../../index.d';
+import BaseData from '../BaseData';
 
 interface IData {
   contractAddress: string;
   contractInstance: any;
-  prepareRegistry(encryptionSchema: Policy): Promise<PrepareRegistryReturnType>;
+  prepareRegistry(encryptionSchema: EncryptionSchema): Promise<PrepareRegistryReturnType>;
   register(dataId: Bytes32, dataTag: string, priceInfo: PriceInfoT, dataContent: Bytes): Promise<Bytes32>;
   getAllData(): Promise<DataItems>;
   getDataByOwner(owner: Address): Promise<DataItems>;
   getDataById(dataId: Bytes32): Promise<DataItem>;
   deleteDataById(dataId: Bytes32): void;
 }
-
-export default class Data implements IData {
-  contractAddress: string;
-  contractInstance: any;
-
+export default class EVMData extends BaseData {
   constructor(chainName: ChainName, provider: any) {
-    this.contractAddress = DATACONTRACTADDRESSES[chainName];
-    if (chainName === 'ao') {
-      this.contractInstance = null;
-    } else if (['sepolia'].includes(chainName)) {
-      const abiJson = [''];
-      let providerT = new ethers.providers.Web3Provider(provider);
-      let signer = providerT.getSigner();
-      this.contractInstance = new ethers.Contract(this.contractAddress, abiJson, signer);
-    }
+    super(chainName, provider);
+    this._initContractInstance(provider);
   }
 
+  /**
+   * Initializes the contract instance.
+   *
+   * This function is responsible for initializing an ethers.Contract instance using the provided provider.
+   * This instance can then be used to interact with a specific smart contract. The use of ethers.js library
+   * provides a simple way to interface with the Ethereum network, including signing and sending transactions.
+   *
+   * @param provider A provider used to connect to the Ethereum network. It should be a Web3Provider instance
+   *                 or another supported provider. The provider offers methods to interact with the Ethereum
+   *                 blockchain.
+   * @return None. This function initializes the contract instance by modifying an instance variable of the class.
+   */
+  _initContractInstance(provider: any) {
+    const abiJson = [''];
+    let providerT = new ethers.providers.Web3Provider(provider);
+    let signer = providerT.getSigner();
+    this.contractInstance = new ethers.Contract(this.contractAddress, abiJson, signer);
+  }
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.
    * @param encryptionSchema EncryptionSchema
    * @return dataId and publicKeys data id and public keys
    */
-  async prepareRegistry(encryptionSchema: Policy): Promise<PrepareRegistryReturnType> {
+  async prepareRegistry(encryptionSchema: EncryptionSchema): Promise<PrepareRegistryReturnType> {
     return await this.contractInstance.prepareRegistry(encryptionSchema);
   }
 
@@ -83,6 +90,7 @@ export default class Data implements IData {
   /**
    * @notice Delete data by dataId
    * @param dataId The identifier of the data
+   * @return None.
    */
   async deleteDataById(dataId: Bytes32): Promise<void> {
     return await this.contractInstance.deleteDataById(dataId);
