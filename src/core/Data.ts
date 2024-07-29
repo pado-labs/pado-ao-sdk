@@ -1,7 +1,7 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
 import Arweave from 'arweave';
 import { THRESHOLD_2_3 } from '../algorithm';
-import type { CommonObject, DataItem, DataItems, nodeInfo, Policy, PriceInfo } from '../index.d';
+import type { CommonObject, DataItem, DataItems, EncryptionSchema, nodeInfo, PriceInfo } from '../index.d';
 import { submitDataToArseeding } from '../padoarseeding';
 import { ARConfig, submitDataToAR } from '../padoarweave';
 import { allData, register as dataRegister, getDataById as getDataInfoById } from '../processes/dataregistry';
@@ -22,7 +22,7 @@ interface IData {
     priceInfo: PriceInfo,
     wallet: any,
     extParam?: CommonObject,
-    policy?: Policy
+    encryptionSchema?: EncryptionSchema
   ): Promise<string>;
   uploadData(
     data: Uint8Array,
@@ -30,7 +30,7 @@ interface IData {
     priceInfo: PriceInfo,
     wallet: any,
     extParam?: CommonObject,
-    policy?: Policy
+    encryptionSchema?: EncryptionSchema
   ): Promise<string>;
   listData(dataStatus?: string): Promise<DataItems>;
   getDataById(dataId?: string): Promise<DataItem>;
@@ -85,7 +85,7 @@ export default class Data implements IData {
    *                    - uploadParam : The uploadParam object, which can be used to pass additional parameters to the upload process
    *                        - storageType : The storage type, default is ARWEAVE
    *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
-   * @param policy  - threshold
+   * @param encryptionSchema  - threshold
    * @returns The uploaded encrypted data id
    */
   async submitData(
@@ -94,9 +94,9 @@ export default class Data implements IData {
     priceInfo: PriceInfo,
     wallet: any,
     extParam?: CommonObject,
-    policy: Policy = { t: '2', n: '3' }
+    encryptionSchema: EncryptionSchema = { t: '2', n: '3' }
   ): Promise<string> {
-    console.log('policy', policy);
+    console.log('encryptionSchema', encryptionSchema);
     if (!encryptedData) {
       throw new Error('The encrypted Data to be uploaded can not be empty');
     }
@@ -148,7 +148,7 @@ export default class Data implements IData {
    *                    - uploadParam : The uploadParam object, which can be used to pass additional parameters to the upload process
    *                        - storageType : The storage type, default is ARWEAVE
    *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
-   * @param policy  - threshold
+   * @param encryptionSchema  - threshold
    * @returns The uploaded encrypted data id
    */
   async uploadData(
@@ -157,10 +157,10 @@ export default class Data implements IData {
     priceInfo: PriceInfo,
     wallet: any,
     extParam?: CommonObject,
-    policy: Policy = { t: '2', n: '3' }
+    encryptionSchema: EncryptionSchema = { t: '2', n: '3' }
   ) {
     const encryptedData = await this.encryptData(data);
-    const dataId = await this.submitData(encryptedData, dataTag, priceInfo, wallet, extParam, policy);
+    const dataId = await this.submitData(encryptedData, dataTag, priceInfo, wallet, extParam, encryptionSchema);
     return dataId;
   }
 
