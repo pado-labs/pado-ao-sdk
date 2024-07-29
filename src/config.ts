@@ -20,3 +20,8 @@ export const TASKCONTRACTADDRESSES = {
   ao: '0x0',
   sepolia: '0x0'
 };
+
+export const DEFAULTENCRYPTIONSCHEMA = {
+  t: '2',
+  n: '3'
+};

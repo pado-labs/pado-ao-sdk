@@ -14,15 +14,9 @@ interface IData {
 }
 
 export default class BaseData implements IData {
-  contractAddress: string;
+  
   contractInstance: any;
-  /**
-   * @param chainName The name of the chain, used to identify and differentiate between different chains.
-   * @param provider The provider object for the blockchain, used to establish and manage the connection with the blockchain.
-   */
-  constructor(chainName: ChainName, provider: any) {
-    this.contractAddress = DATACONTRACTADDRESSES[chainName];
-  }
+  
 
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.
