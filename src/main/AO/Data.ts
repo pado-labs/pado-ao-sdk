@@ -1,13 +1,8 @@
-import { message, result } from '@permaweb/aoconnect';
-import { DATAREGISTRY_PROCESS_ID, DEFAULTENCRYPTIONSCHEMA } from '../../config';
+import { DEFAULTENCRYPTIONSCHEMA } from '../../config';
 import AODataContract from '../../contracts/AO/Data';
 import AOWorkerContract from '../../contracts/AO/Worker';
-import { encrypt } from '../../core/utils';
-import type { CommonObject, EncryptionSchema, nodeInfo, PolicyInfo } from '../../index.d';
-import { getMessageResultData } from '../../processes/utils';
+import type { ChainName, CommonObject, DataItems, EncryptionSchema, PriceInfo } from '../../index.d';
 import BaseData from '../BaseData';
-import Worker from './Worker';
-
 
 export default class AOData extends BaseData {
   dataContractInstance: any;
@@ -17,48 +12,6 @@ export default class AOData extends BaseData {
     this.dataContractInstance = new AODataContract();
     this.workerContractInstance = new AOWorkerContract();
   }
-  // /**
-  //  * Get node infos
-  //  *
-  //  * @param n - How many nodes to select
-  //  * @param random - Whether randomly selected
-  //  * @returns The node infos
-  //  */
-  // private async _getNodeInfos(n: number, random: boolean = false): Promise<Array<nodeInfo>> {
-  //   let nodesres = await this.workerContractInstance.nodes();
-  //   nodesres = JSON.parse(nodesres);
-  //   if (nodesres.length < n) {
-  //     throw `Insufficient number of nodes, expect ${n}, actual ${nodesres.length}`;
-  //   }
-
-  //   let selected_indices = Array.from({ length: nodesres.length }, (_, i) => i);
-  //   if (random) {
-  //     selected_indices.sort(function () {
-  //       return 0.5 - Math.random();
-  //     });
-  //   }
-
-  //   let nodeInfos: Array<nodeInfo> = [];
-  //   for (let i = 0; i < n; i++) {
-  //     let node = nodesres[selected_indices[i]];
-  //     nodeInfos.push({
-  //       org_index: parseInt(node.index),
-  //       index: parseInt(node.index),
-  //       name: node.name,
-  //       pk: node.publickey
-  //     });
-  //   }
-
-  //   // it's ok, no matter sorted or not
-  //   // nodeInfos.sort((a, b) => a.org_index - b.org_index);
-
-  //   // re-index, do not care original index
-  //   for (var i = 0; i < nodeInfos.length; i++) {
-  //     nodeInfos[i].index = i + 1;
-  //   }
-  //   return nodeInfos;
-  // }
-  
 
   /**
    * Encrypt data and upload encrypted data to decentralized storage blockchains such as Arweave and Filecoin.The combination of encryptData and submitData.
@@ -84,7 +37,45 @@ export default class AOData extends BaseData {
   ) {
     const [policy, publicKeys] = await this.dataContractInstance.prepareRegistry(encryptionSchema);
     const encryptData = this.dataContractInstance.encryptData(data, policy, publicKeys);
-    const dataId = await this.dataContractInstance.submitData(encryptData, dataTag, priceInfo, policy, wallet, extParam)
-    return dataId
+    const dataId = await this.dataContractInstance.submitData(
+      encryptData,
+      dataTag,
+      priceInfo,
+      policy,
+      wallet,
+      extParam
+    );
+    return dataId;
+  }
+
+  /**
+   * Asynchronously retrieves a list of data items.
+   *
+   * This function calls the method of the data contract instance to fetch a list of data items with a specified status.
+   *
+   * @param {string} dataStatus - The status of the data items to be retrieved, defaulting to 'Valid'.
+   * @returns {Promise<DataItems>} A promise that resolves to an object containing the fetched data items.
+   */
+  async listData(dataStatus = 'Valid'): Promise<DataItems> {
+    const resStr = await this.dataContractInstance.allData(dataStatus);
+    const res = JSON.parse(resStr);
+    return res;
+  }
+
+  /**
+   * Asynchronously retrieves data information by the given data ID.
+   *
+   * This function calls the getDataInfoById method of the data contract instance
+   * to fetch the encrypted data, logs the result, and then parses the JSON string
+   * to return the data object.
+   *
+   * @param {string} dataId - The unique identifier for the data to be retrieved.
+   * @returns {Promise<any>} A promise that resolves to the data object.
+   */
+  async getDataById(dataId: string) {
+    const encData = await this.dataContractInstance.getDataInfoById(dataId);
+    console.log('getDataById=', dataId, encData);
+    const res = JSON.parse(encData);
+    return res;
   }
 }

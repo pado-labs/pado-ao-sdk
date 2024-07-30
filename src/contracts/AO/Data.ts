@@ -1,4 +1,4 @@
-import { createDataItemSigner, message, result } from '@permaweb/aoconnect';
+import { createDataItemSigner, dryrun, message, result } from '@permaweb/aoconnect';
 import Arweave from 'arweave';
 import { DATAREGISTRY_PROCESS_ID } from '../../config';
 import { encrypt } from '../../core/utils';
@@ -8,6 +8,7 @@ import { ARConfig, submitDataToAR } from '../../padoarweave';
 import { getMessageResultData } from '../../processes/utils';
 import BaseData from '../BaseData';
 import Worker from './Worker';
+
 
 export default class AOData extends BaseData {
   /**
@@ -72,6 +73,60 @@ export default class AOData extends BaseData {
     const res = encrypt(publicKeys, data, policy);
     return Object.assign(res, { policy });
   }
+
+  /**
+   * Asynchronously retrieves all data based on the specified data status.
+   *
+   * @param dataStatus - The status of the data to retrieve, defaults to 'Valid'.
+   * @returns A promise that resolves to the retrieved data.
+   */
+  async allData(dataStatus: string = 'Valid') {
+    let { Messages } = await dryrun({
+      process: DATAREGISTRY_PROCESS_ID,
+      tags: [
+        { name: 'Action', value: 'AllData' },
+        { name: 'DataStatus', value: dataStatus }
+      ]
+    });
+    const res = Messages[0].Data;
+    return res;
+  }
+
+  /**
+   * Asynchronously retrieves data by its ID.
+   *
+   * This function calls the dryrun interface, passing a specific process ID and tags to request information for a particular data ID.
+   * It is primarily applicable in scenarios where data needs to be fetched from the data registry center based on the data ID.
+   *
+   * @param dataId The unique identifier ID of the data.
+   * @returns The specific data extracted from the interface response.
+   */
+  async getDataById(dataId: string) {
+    let { Messages } = await dryrun({
+      process: DATAREGISTRY_PROCESS_ID,
+      tags: [
+        { name: 'Action', value: 'GetDataById' },
+        { name: 'DataId', value: dataId }
+      ]
+    });
+    const res = Messages[0].Data;
+    return res;
+  }
+
+  /**
+   * Asynchronously submits data.
+   *
+   * This function is used to submit encrypted data, data tags, price information, and policies to the system,
+   * sign it with a wallet, and register it with the compute nodes.
+   *
+   * @param encryptData The encrypted data object to be submitted.
+   * @param dataTag The data tag object associated with the data being submitted.
+   * @param priceInfo The price information object related to the data submission.
+   * @param policy The policy object that defines how the data should be handled.
+   * @param wallet The wallet object used for signing the transaction.
+   * @param extParam An optional extra parameter object that can be passed.
+   * @returns A promise that resolves to a common object representing the data ID.
+   */
   async submitData(
     encryptData: CommonObject,
     dataTag: CommonObject,
