@@ -13,7 +13,7 @@ export default class AOWorker {
         { name: 'Name', value: name },
         { name: 'Desc', value: desc }
       ],
-      signer: signer,
+      signer,
       data: pk
     });
 
@@ -41,7 +41,7 @@ export default class AOWorker {
         { name: 'Action', value: 'Delete' },
         { name: 'Name', value: name }
       ],
-      signer: signer
+      signer
     });
 
     let Result = await result({
@@ -69,7 +69,7 @@ export default class AOWorker {
         { name: 'Action', value: 'AddWhiteList' },
         { name: 'Address', value: addr }
       ],
-      signer: signer
+      signer
     });
 
     let Result = await result({

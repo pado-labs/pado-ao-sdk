@@ -1,4 +1,7 @@
 import type { StorageType } from "./index.d";
+import PadoNetworkContractClient from './PadoNetworkContractClient';
+import PadoNetworkStorageClient from './PadoNetworkStorageClient';
+
 
 export default class PadoNetworkClient {
   padoNetworkContractClient: any;

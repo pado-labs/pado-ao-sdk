@@ -30,7 +30,7 @@ export default class AOData extends BaseData {
    * @param price The price of the data, specifying the selling price of this data.
    * @param exData Extra data, which can be any supplementary information related to the registered data.
    * @param computeNodes An array of compute nodes, indicating the compute nodes associated with this data.
-   * @param signer The signing entity, responsible for signing the message.
+   * @param signer  The formatted signer object.
    * @returns The result data obtained from the message processing result.
    */
   async register(dataTag: string, price: string, exData: string, computeNodes: string[], signer: any) {
@@ -53,25 +53,6 @@ export default class AOData extends BaseData {
 
     const res = getMessageResultData(Result);
     return res;
-  }
-
-  /**
-   * Asynchronous function: encrypts data.
-   *
-   * This function is used to encrypt a given piece of data using a specified encryption policy and public keys. It first checks if the data to be encrypted is empty, then performs the encryption operation, and finally returns the encrypted data along with the encryption policy.
-   *
-   * @param data A Uint8Array type data to be encrypted.
-   * @param policy An encryption policy that specifies how the data is encrypted.
-   * @param publicKeys An array of strings containing the public keys used for encryption.
-   * @returns Returns a Promise, which resolves to an object containing the encrypted data and encryption policy.
-   * @throws If the data to be encrypted is empty, an error is thrown.
-   */
-  encryptData(data: Uint8Array, policy: PolicyInfo, publicKeys: string[]): CommonObject {
-    if (data.length === 0) {
-      throw new Error('The Data to be encrypted can not be empty');
-    }
-    const res = encrypt(publicKeys, data, policy);
-    return Object.assign(res, { policy });
   }
 
   /**
@@ -114,38 +95,6 @@ export default class AOData extends BaseData {
   }
 
   /**
-   * Asynchronously submits data.
-   *
-   * This function is used to submit encrypted data, data tags, price information, and policies to the system,
-   * sign it with a wallet, and register it with the compute nodes.
-   *
-   * @param encryptData The encrypted data object to be submitted.
-   * @param dataTag The data tag object associated with the data being submitted.
-   * @param priceInfo The price information object related to the data submission.
-   * @param policy The policy object that defines how the data should be handled.
-   * @param wallet The wallet object used for signing the transaction.
-   * @param extParam An optional extra parameter object that can be passed.
-   * @returns A promise that resolves to a common object representing the data ID.
-   */
-  async submitData(
-    encryptData: CommonObject,
-    dataTag: CommonObject,
-    priceInfo: CommonObject,
-    policy: PolicyInfo,
-    wallet: any,
-    extParam?: CommonObject
-  ): Promise<CommonObject> {
-    const txData = await this._formatTxData(encryptData, dataTag, wallet, extParam);
-    const dataTagStr = JSON.stringify(dataTag);
-    const priceInfoStr = JSON.stringify(priceInfo);
-    const txDataStr = JSON.stringify(txData);
-    const computeNodes = policy.names;
-    const signer = this._formatSigner(wallet);
-    const dataId = this.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
-    return dataId;
-  }
-
-  /**
    * Formats the encryption policy and collects public keys of nodes.
    *
    * This method takes an encryption schema and an array of node information,
@@ -175,51 +124,5 @@ export default class AOData extends BaseData {
     const formatPolicy = { ...policy, t: Number(policy.t), n: Number(policy.n) };
 
     return [formatPolicy, nodesPublicKey];
-  }
-
-  private async _formatTxData(
-    encryptedData: CommonObject,
-    dataTag: CommonObject,
-    wallet: any,
-    extParam?: CommonObject
-  ): Promise<CommonObject> {
-    if (!encryptedData) {
-      throw new Error('The encrypted Data to be uploaded can not be empty');
-    }
-    let transactionId;
-    const arweave: Arweave = Arweave.init(ARConfig);
-    if (StorageType.ARSEEDING === extParam?.uploadParam?.storageType) {
-      dataTag['storageType'] = StorageType.ARSEEDING;
-      transactionId = await submitDataToArseeding(
-        arweave,
-        encryptedData.enc_msg,
-        wallet,
-        extParam.uploadParam.symbolTag
-      );
-    } else {
-      dataTag['storageType'] = StorageType.ARWEAVE;
-      transactionId = await submitDataToAR(arweave, encryptedData.enc_msg, wallet);
-    }
-
-    let exData = {
-      policy: encryptedData.policy,
-      nonce: encryptedData.nonce,
-      transactionId: transactionId,
-      encSks: encryptedData.enc_sks
-    };
-    return exData;
-  }
-  /**
-   * Formats the signer object.
-   *
-   * This method creates and returns a formatted signer object, which can be used for subsequent signing operations.
-   * It accepts a wallet object as a parameter, which is used to generate the signer.
-   *
-   * @param wallet - The wallet object from which the signer will be created.
-   * @returns The formatted signer object.
-   */
-  private _formatSigner(wallet: any): any {
-    const signer = createDataItemSigner(wallet);
-    return signer;
   }
 }

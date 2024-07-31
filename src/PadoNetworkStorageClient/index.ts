@@ -8,7 +8,9 @@ const StorageClient = {
 };
 export default class PadoNetworkStorageClient {
   private _client: any;
-  constructor(storageType: StorageType) {
+  storageType: StorageType;
+  constructor(storageType: StorageType = StorageType.ARWEAVE) {
+    this.storageType = storageType;
     this._client = new StorageClient[storageType]();
   }
   async submitData(data: Uint8Array, wallet: any): Promise<string> {
