@@ -1,9 +1,18 @@
-;
-
 // import { Contract  } from '@ethersproject/contracts';
 // import { Web3Provider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
-import type { Address, Bytes, Bytes32, ChainName, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../../index.d';
+import { DATACONTRACTADDRESSES } from '../../config';
+import type {
+  Address,
+  Bytes,
+  Bytes32,
+  ChainName,
+  DataItem,
+  DataItems,
+  EncryptionSchema,
+  PrepareRegistryReturnType,
+  PriceInfoT
+} from '../../index.d';
 import BaseData from '../BaseData';
 
 interface IData {
@@ -17,8 +26,15 @@ interface IData {
   deleteDataById(dataId: Bytes32): void;
 }
 export default class EVMData extends BaseData {
-  constructor(chainName: ChainName, provider: any) {
-    super(chainName, provider);
+  contractAddress: string;
+  /**
+   * @param chainName The name of the chain, used to identify and differentiate between different chains.
+   * @param provider The provider object for the blockchain, used to establish and manage the connection with the blockchain.
+   */
+  constructor(chainName: ChainName, provider: any = window.ethereum) {
+    // TODO-ysm provider use window.etherrum directly?
+    super();
+    this.contractAddress = DATACONTRACTADDRESSES[chainName];
     this._initContractInstance(provider);
   }
 
