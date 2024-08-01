@@ -3,8 +3,7 @@ import BaseStorage from './BaseStorage';
 
 
 export default class ArweaveStorage extends BaseStorage {
-  
-  // TODO-ysm data is Uint8Array?
+  // TODO-ysm data is Uint8Array? wallet is window.arweave?
   async submitData(data: string | Uint8Array | ArrayBuffer, wallet: any): Promise<string> {
     let createTransactionParams: createTransactionParamsTuple = [
       {

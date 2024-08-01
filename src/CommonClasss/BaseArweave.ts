@@ -1,7 +1,7 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
 import Arweave from 'arweave';
 import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from '../algorithm';
-import { type KeyInfo, type PolicyInfo } from '../index.d';
+import { CommonObject, type KeyInfo, type PolicyInfo } from '../index.d';
 
 
 const ARConfig = {
@@ -68,7 +68,7 @@ export default class BaseArweave implements IArweave {
     enc_msg: Uint8Array,
     chosen_indices: number[],
     threshold: any = THRESHOLD_2_3
-  ): string[] {
+  ): CommonObject {
     return decrypt(reenc_sks, consumer_sk, nonce, enc_msg, chosen_indices, threshold);
   }
 

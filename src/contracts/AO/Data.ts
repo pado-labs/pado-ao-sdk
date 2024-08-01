@@ -117,8 +117,8 @@ export default class AOData extends BaseData {
 
     let nodesPublicKey = [] as string[];
     for (let i = 0; i < nodeInfos.length; i++) {
-      policy.indices.push(nodeInfos[i].index);
-      policy.names.push(nodeInfos[i].name);
+      policy.indices.push(nodeInfos[i].index); // TODO-ysm
+      policy.names.push(nodeInfos[i].name); // TODO-ysm
       nodesPublicKey.push(nodeInfos[i].pk);
     }
     const formatPolicy = { ...policy, t: Number(policy.t), n: Number(policy.n) };

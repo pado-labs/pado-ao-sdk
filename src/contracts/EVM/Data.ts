@@ -31,7 +31,8 @@ export default class EVMData extends BaseData {
    * @param chainName The name of the chain, used to identify and differentiate between different chains.
    * @param provider The provider object for the blockchain, used to establish and manage the connection with the blockchain.
    */
-  constructor(chainName: ChainName, provider: any) {
+  constructor(chainName: ChainName, provider: any = window.ethereum) {
+    // TODO-ysm provider use window.etherrum directly?
     super();
     this.contractAddress = DATACONTRACTADDRESSES[chainName];
     this._initContractInstance(provider);

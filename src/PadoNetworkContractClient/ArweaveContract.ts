@@ -7,6 +7,7 @@ import { AOCRED_PROCESS_ID, COMPUTELIMIT, DEFAULTENCRYPTIONSCHEMA, MEMORYLIMIT, 
 import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../index.d';
 import BaseContract from './BaseContract';
 
+
 export default class ArweaveContract extends BaseContract {
   worker: any;
   data: any;
@@ -132,7 +133,6 @@ export default class ArweaveContract extends BaseContract {
   }
 
   async getTaskResult(taskId: string, timeout: number = 10000): Promise<Uint8Array> {
-    this.userKey.sk;
     const taskStr = await this._getCompletedTaskPromise(taskId, timeout);
     const task = JSON.parse(taskStr);
     if (task.verificationError) {
