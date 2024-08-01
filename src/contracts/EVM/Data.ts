@@ -1,31 +1,13 @@
+;
 // import { Contract  } from '@ethersproject/contracts';
 // import { Web3Provider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import { DATACONTRACTADDRESSES } from '../../config';
-import type {
-  Address,
-  Bytes,
-  Bytes32,
-  ChainName,
-  DataItem,
-  DataItems,
-  EncryptionSchema,
-  PrepareRegistryReturnType,
-  PriceInfoT
-} from '../../index.d';
+import type { Address, Bytes, Bytes32, ChainName, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../../index.d';
 import BaseData from '../BaseData';
 
-interface IData {
-  contractAddress: string;
-  contractInstance: any;
-  prepareRegistry(encryptionSchema: EncryptionSchema): Promise<PrepareRegistryReturnType>;
-  register(dataId: Bytes32, dataTag: string, priceInfo: PriceInfoT, dataContent: Bytes): Promise<Bytes32>;
-  getAllData(): Promise<DataItems>;
-  getDataByOwner(owner: Address): Promise<DataItems>;
-  getDataById(dataId: Bytes32): Promise<DataItem>;
-  deleteDataById(dataId: Bytes32): void;
-}
-export default class EVMData extends BaseData {
+
+export default class Data extends BaseData {
   contractAddress: string;
   /**
    * @param chainName The name of the chain, used to identify and differentiate between different chains.

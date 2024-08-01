@@ -69,15 +69,35 @@ export default class ArweaveContract extends BaseContract {
     return dataId;
   }
 
+  /**
+   * Asynchronously retrieves a list of data based on the specified status.
+   * @param dataStatus - The status of the data to retrieve, defaults to 'Valid'.
+   * @returns A promise that resolves to the retrieved data.
+   */
   async getDataList(dataStatus: string = 'Valid') {
     const res = await this.data.allData(dataStatus);
     return res;
   }
+
+  /**
+   * Asynchronously retrieves data by the specified ID.
+   * @param dataId The unique identifier of the data to retrieve.
+   * @returns A promise that resolves to the retrieved data.
+   */
   async getDataById(dataId: string) {
     const res = await this.data.getDataById(dataId);
     return res;
   }
 
+  /**
+   * Submits a task for processing with specific parameters.
+   *
+   * @param taskType - The type of task to be submitted.
+   * @param wallet - The wallet object used for signing transactions.
+   * @param dataId - The ID of the data to be processed in the task.
+   *
+   * @returns A promise that resolves to the ID of the submitted task.
+   */
   async submitTask(taskType: string, wallet: any, dataId: string) {
     const key = await this.generateKey();
     this.userKey = key;
@@ -132,6 +152,13 @@ export default class ArweaveContract extends BaseContract {
     return taskId;
   }
 
+  /**
+   * Asynchronously retrieves the result of a task.
+   *
+   * @param taskId The unique identifier for the task.
+   * @param timeout The timeout duration in milliseconds, defaults to 10000ms.
+   * @returns A promise that resolves to an array of unsigned 8-bit integers representing the task result.
+   */
   async getTaskResult(taskId: string, timeout: number = 10000): Promise<Uint8Array> {
     const taskStr = await this._getCompletedTaskPromise(taskId, timeout);
     const task = JSON.parse(taskStr);
@@ -173,6 +200,13 @@ export default class ArweaveContract extends BaseContract {
     return new Uint8Array(res.msg);
   }
 
+  /**
+   * Asynchronously retrieves a completed task by its ID within a specified timeout.
+   *
+   * @param {string} taskId - The unique identifier of the task to retrieve.
+   * @param {number} timeout - The maximum time in milliseconds to wait for the task before timing out.
+   * @returns {Promise<string>} A promise that resolves with the task as a string or rejects with a 'timeout' message.
+   */
   private async _getCompletedTaskPromise(taskId: string, timeout: number): Promise<string> {
     return new Promise((resolve, reject) => {
       const start = performance.now();
