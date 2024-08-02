@@ -1,12 +1,11 @@
-import {  dryrun, message, result } from '@permaweb/aoconnect';
+import { dryrun, message, result } from '@permaweb/aoconnect';
 import { DATAREGISTRY_PROCESS_ID } from '../../config';
-import {type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../index.d';
+import { type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../index.d';
 import { getMessageResultData } from '../../processes/utils';
-import BaseData from '../BaseData';
 import Worker from './Worker';
 
-
-export default class AOData extends BaseData {
+export default class AOData {
+  contractInstance: any;
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.
    * @param encryptionSchema EncryptionSchema

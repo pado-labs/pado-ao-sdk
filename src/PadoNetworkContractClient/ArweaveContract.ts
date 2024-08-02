@@ -1,12 +1,19 @@
+import { createDataItemSigner } from '@permaweb/aoconnect';
 import Data from 'contracts/AO/Data';
 import Fee from 'contracts/AO/Fee';
 import Helper from 'contracts/AO/Helper';
 import Task from 'contracts/AO/Task';
 import Worker from 'contracts/AO/Worker';
-import { AOCRED_PROCESS_ID, COMPUTELIMIT, DEFAULTENCRYPTIONSCHEMA, MEMORYLIMIT, TASKS_PROCESS_ID, WAR_PROCESS_ID } from '../config';
+import {
+  AOCRED_PROCESS_ID,
+  COMPUTELIMIT,
+  DEFAULTENCRYPTIONSCHEMA,
+  MEMORYLIMIT,
+  TASKS_PROCESS_ID,
+  WAR_PROCESS_ID
+} from '../config';
 import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../index.d';
 import BaseContract from './BaseContract';
-
 
 export default class ArweaveContract extends BaseContract {
   worker: any;
@@ -64,7 +71,7 @@ export default class ArweaveContract extends BaseContract {
     const priceInfoStr = JSON.stringify(priceInfo);
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
-    const signer = await this.getSigner(wallet);
+    const signer = await this._getSigner(wallet);
     const dataId = this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }
@@ -123,7 +130,7 @@ export default class ArweaveContract extends BaseContract {
 
     const nodePrice = await this.fee.fetchComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
-    const signer = await this.getSigner(wallet);
+    const signer = await this._getSigner(wallet);
 
     try {
       const from = supportSymbolFromAddressMap[symbol as keyof typeof supportSymbolFromAddressMap];
@@ -224,5 +231,19 @@ export default class ArweaveContract extends BaseContract {
       };
       tick();
     });
+  }
+
+  /**
+   * Formats the signer object.
+   *
+   * This method creates and returns a formatted signer object, which can be used for subsequent signing operations.
+   * It accepts a wallet object as a parameter, which is used to generate the signer.
+   *
+   * @param wallet - The wallet object from which the signer will be created.
+   * @returns The formatted signer object.
+   */
+  private _getSigner(wallet: any): any {
+    const signer = createDataItemSigner(wallet);
+    return signer;
   }
 }
