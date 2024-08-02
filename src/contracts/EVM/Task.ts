@@ -1,8 +1,6 @@
-import { dryrun, message, result } from '@permaweb/aoconnect';
 import { ethers } from 'ethers';
-import { DATACONTRACTADDRESSES, TASKS_PROCESS_ID } from '../../config';
+import { DATACONTRACTADDRESSES } from '../../config';
 import type { Bytes, Bytes32, Uint32,Task } from '../../index.d';
-
 
 
 export default class TaskC {

@@ -1,5 +1,4 @@
-import { DATACONTRACTADDRESSES } from '../config';
-import type { Address, Bytes, Bytes32, ChainName, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../index.d';
+import type { Address, Bytes32, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../index.d';
 
 
 interface IData {
@@ -16,7 +15,6 @@ interface IData {
 export default class BaseData implements IData {
   
   contractInstance: any;
-  
 
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.

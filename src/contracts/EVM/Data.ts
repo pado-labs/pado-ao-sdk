@@ -1,6 +1,3 @@
-;
-// import { Contract  } from '@ethersproject/contracts';
-// import { Web3Provider } from '@ethersproject/providers';
 import { ethers } from 'ethers';
 import { DATACONTRACTADDRESSES } from '../../config';
 import type { Address, Bytes, Bytes32, ChainName, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../../index.d';

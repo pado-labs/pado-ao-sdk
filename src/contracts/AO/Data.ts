@@ -1,10 +1,6 @@
-import { createDataItemSigner, dryrun, message, result } from '@permaweb/aoconnect';
-import Arweave from 'arweave';
+import {  dryrun, message, result } from '@permaweb/aoconnect';
 import { DATAREGISTRY_PROCESS_ID } from '../../config';
-import { encrypt } from '../../core/utils';
-import { StorageType, type CommonObject, type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../index.d';
-import { submitDataToArseeding } from '../../padoarseeding';
-import { ARConfig, submitDataToAR } from '../../padoarweave';
+import {type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../index.d';
 import { getMessageResultData } from '../../processes/utils';
 import BaseData from '../BaseData';
 import Worker from './Worker';

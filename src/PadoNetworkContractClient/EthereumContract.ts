@@ -76,6 +76,7 @@ export default class EthereumContract extends BaseContract {
    */
   async getDataList(dataStatus: string = 'Valid') {
     const res = await this.data.getAllData();
+    // TODO-ysm Filter data from various states
     return res;
   }
 
