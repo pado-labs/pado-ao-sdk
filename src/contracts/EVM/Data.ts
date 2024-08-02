@@ -1,8 +1,23 @@
-import type { Address, Bytes, Bytes32, DataItem, DataItems, EncryptionSchema, PrepareRegistryReturnType, PriceInfoT } from '../../index.d';
+import type {
+  Address,
+  Bytes,
+  Bytes32,
+  ChainName,
+  DataItem,
+  DataItems,
+  EncryptionSchema,
+  PrepareRegistryReturnType,
+  PriceInfoT
+} from '../../index.d';
+import abiJson from './abi/dataMgt.json';
 import BaseEVM from './BaseEVM';
 
 
 export default class Data extends BaseEVM {
+  constructor(chainName: ChainName, wallet: any) {
+    super(chainName, wallet)
+    this._initContractInstance(abiJson);
+  }
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.
    * @param encryptionSchema EncryptionSchema

@@ -47,11 +47,13 @@ export default class EthereumContract extends BaseContract {
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
     const [dataId, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
+    const indices =  new Array(Number(encryptionSchema.n)).fill(0);  
+    const names = new Array(Number(encryptionSchema.n)).fill('');  
     const policy = {
       t: Number(encryptionSchema.t),
       n: Number(encryptionSchema.n),
-      indices: [],
-      names: []
+      indices, // TODO
+      names // TODO
     };
     const encryptData = this.encryptData(data, policy, publicKeys);
     // if (!encryptedData) {
@@ -76,7 +78,7 @@ export default class EthereumContract extends BaseContract {
    */
   async getDataList(dataStatus: string = 'Valid') {
     const res = await this.data.getAllData();
-    // TODO-ysm Filter data from various states
+    // TODO Filter data from various states
     return res;
   }
 
@@ -141,8 +143,13 @@ export default class EthereumContract extends BaseContract {
     const task = await this.task.getCompletedTaskById(taskId);
 
     let encData = await this.data.getDataById(task.dataId);
-    const { encryptionSchema, workerIds } = encData;
+    const { encryptionSchema, workerIds, dataContent } = encData;
     const { t, n } = encryptionSchema;
-    // TODO-ysm dataContent is tx
+    let uint8Array = new Uint8Array(dataContent); // 表示 "Hello" 的 UTF-8 编码
+    let decoder = new TextDecoder('utf-8');
+    let transactionId = decoder.decode(uint8Array);  
+    let encMsg = await this.storage.getData(transactionId);
+    // TODO
+    // const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
   }
 }

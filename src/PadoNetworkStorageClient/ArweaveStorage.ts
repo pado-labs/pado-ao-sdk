@@ -11,8 +11,7 @@ export default class ArweaveStorage extends BaseStorage {
    * @param wallet - The wallet object used for creating and signing the transaction; could be `window.arweave` in browser context.
    * @returns A Promise that resolves to the transaction ID once the data has been successfully submitted.
    */
-  // TODO-ysm data is Uint8Array? wallet is window.arweave?
-  async submitData(data: string | Uint8Array | ArrayBuffer, wallet: any): Promise<string> {
+  async submitData(data: Uint8Array, wallet: any): Promise<string> {
     let createTransactionParams: createTransactionParamsTuple = [
       {
         data

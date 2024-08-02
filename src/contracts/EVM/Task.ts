@@ -1,7 +1,12 @@
-import type { Bytes, Bytes32, Uint32,Task } from '../../index.d';
+import type { Bytes, Bytes32, ChainName, Task, Uint32 } from '../../index.d';
 import BaseEVM from './BaseEVM';
+import abiJson from './abi/taskMgt.json'
 
-export default class TaskC extends BaseEVM{
+export default class TaskC extends BaseEVM {
+  constructor(chainName: ChainName, wallet: any) {
+    super(chainName, wallet);
+    this._initContractInstance(abiJson);
+  }
   /**
    * @notice Network Consumer submit confidential computing task to PADO Network.
    * @param taskType The type of the task.
@@ -23,5 +28,4 @@ export default class TaskC extends BaseEVM{
     const res = await this.contractInstance.getCompletedTaskById(taskId);
     return res;
   }
-
 }

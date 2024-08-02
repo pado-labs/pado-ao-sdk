@@ -17,7 +17,7 @@ export default class BaseStorage implements IBaseStorage {
   constructor() {
     this.arweave = Arweave.init(ARConfig);
   }
-  async submitData(data: string | Uint8Array | ArrayBuffer, wallet: any): Promise<string> {
+  async submitData(data: Uint8Array, wallet: any): Promise<string> {
     return Promise.resolve('');
   }
   async getData(transactionId: string): Promise<Uint8Array> {

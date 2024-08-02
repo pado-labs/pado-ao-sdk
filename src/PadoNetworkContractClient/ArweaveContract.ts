@@ -5,15 +5,16 @@ import Helper from 'contracts/AO/Helper';
 import Task from 'contracts/AO/Task';
 import Worker from 'contracts/AO/Worker';
 import {
-  AOCRED_PROCESS_ID,
   COMPUTELIMIT,
   DEFAULTENCRYPTIONSCHEMA,
   MEMORYLIMIT,
-  TASKS_PROCESS_ID,
-  WAR_PROCESS_ID
+  SUPPORTSYMBOLONAOFROMADDRESSMAP,
+  SUPPORTSYMBOLSONAO,
+  TASKS_PROCESS_ID
 } from '../config';
 import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../index.d';
 import BaseContract from './BaseContract';
+
 
 export default class ArweaveContract extends BaseContract {
   worker: any;
@@ -116,14 +117,9 @@ export default class ArweaveContract extends BaseContract {
     const nodeNames = exData.policy.names;
     const priceObj = JSON.parse(encData.price);
     const symbol = priceObj.symbol;
-    // TODO-ysm
-    const supportSymbols = ['AOCRED', 'wAR'];
-    const supportSymbolFromAddressMap = {
-      AOCRED: AOCRED_PROCESS_ID,
-      wAR: WAR_PROCESS_ID
-    };
-    if (!supportSymbols.includes(symbol)) {
-      throw new Error(`Only support ${supportSymbols.join('/')} now!`);
+    
+    if (!SUPPORTSYMBOLSONAO.includes(symbol)) {
+      throw new Error(`Only support ${SUPPORTSYMBOLSONAO.join('/')} now!`);
     }
     const dataPrice = priceObj.price;
     //get node price
@@ -133,7 +129,7 @@ export default class ArweaveContract extends BaseContract {
     const signer = await this._getSigner(wallet);
 
     try {
-      const from = supportSymbolFromAddressMap[symbol as keyof typeof supportSymbolFromAddressMap];
+      const from = SUPPORTSYMBOLONAOFROMADDRESSMAP[symbol as keyof typeof SUPPORTSYMBOLONAOFROMADDRESSMAP];
       await this.helper.transfer(from, TASKS_PROCESS_ID, totalPrice.toString(), signer);
     } catch (err) {
       if (err === 'Insufficient Balance!') {
@@ -202,7 +198,6 @@ export default class ArweaveContract extends BaseContract {
     }
     let encMsg = await this.storage.getData(exData.transactionId);
 
-    // TODO-ysm
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
     return new Uint8Array(res.msg);
   }
