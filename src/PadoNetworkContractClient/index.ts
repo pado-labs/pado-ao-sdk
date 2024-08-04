@@ -1,7 +1,7 @@
-import type { ChainName, CommonObject, EncryptionSchema, PriceInfo, StorageType } from './index.d';
-import ArweaveContract from './PadoNetworkContractClient/ArweaveContract';
-import EthereumContract from './PadoNetworkContractClient/EthereumContract';
-import { DEFAULTENCRYPTIONSCHEMA } from './config'
+import type { ChainName, CommonObject, EncryptionSchema, PriceInfo, StorageType } from '../index.d';
+import ArweaveContract from './ArweaveContract';
+import EthereumContract from './EthereumContract';
+import {DEFAULTENCRYPTIONSCHEMA} from '../config'
 
 const ContractClient = {
   ao: ArweaveContract,
