@@ -3,8 +3,15 @@ import BaseStorage from './BaseStorage';
 
 
 export default class ArweaveStorage extends BaseStorage {
-  // TODO-ysm data is Uint8Array? wallet is window.arweave?
-  async submitData(data: string | Uint8Array | ArrayBuffer, wallet: any): Promise<string> {
+  /**
+   * Submits data to the Arweave network by creating and signing a transaction, then uploading it.
+   * Supports both small and large data submissions through different methods.
+   *
+   * @param data - The data to be submitted, can be in the form of a string, Uint8Array, or ArrayBuffer.
+   * @param wallet - The wallet object used for creating and signing the transaction; could be `window.arweave` in browser context.
+   * @returns A Promise that resolves to the transaction ID once the data has been successfully submitted.
+   */
+  async submitData(data: Uint8Array, wallet: any): Promise<string> {
     let createTransactionParams: createTransactionParamsTuple = [
       {
         data
@@ -43,6 +50,12 @@ export default class ArweaveStorage extends BaseStorage {
     return transaction.id;
   }
 
+  /**
+   * Asynchronously retrieves the data of a transaction from Arweave.
+   *
+   * @param transactionId - The ID of the transaction to fetch the data from.
+   * @returns A promise that resolves to the transaction's data as a Uint8Array.
+   */
   async getData(transactionId: string): Promise<Uint8Array> {
     const res = (await this.arweave.transactions.getData(transactionId, { decode: true })) as Uint8Array;
     return res;

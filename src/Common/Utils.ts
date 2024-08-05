@@ -1,23 +1,8 @@
-import { createDataItemSigner } from '@permaweb/aoconnect';
-import Arweave from 'arweave';
 import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from '../algorithm';
 import { CommonObject, type KeyInfo, type PolicyInfo } from '../index.d';
 
-
-const ARConfig = {
-  host: 'arweave.net',
-  port: 443,
-  protocol: 'https'
-};
-interface IArweave {
-  arweave: Arweave;
-}
-export default class BaseArweave implements IArweave {
-  arweave: Arweave;
-  constructor() {
-    this.arweave = Arweave.init(ARConfig);
-  }
-
+export default class Utils {
+  constructor() {}
   /**
    * Generate private and public key pair
    *
@@ -71,18 +56,5 @@ export default class BaseArweave implements IArweave {
   ): CommonObject {
     return decrypt(reenc_sks, consumer_sk, nonce, enc_msg, chosen_indices, threshold);
   }
-
-  /**
-   * Formats the signer object.
-   *
-   * This method creates and returns a formatted signer object, which can be used for subsequent signing operations.
-   * It accepts a wallet object as a parameter, which is used to generate the signer.
-   *
-   * @param wallet - The wallet object from which the signer will be created.
-   * @returns The formatted signer object.
-   */
-  getSigner(wallet: any): any {
-    const signer = createDataItemSigner(wallet);
-    return signer;
-  }
+  
 }

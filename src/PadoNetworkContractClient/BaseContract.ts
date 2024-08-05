@@ -1,5 +1,5 @@
 import { StorageType } from 'index.d';
-import BaseArweave from '../CommonClasss/BaseArweave';
+import Utils from '../Common/Utils';
 import PadoNetworkStorageClient from '../PadoNetworkStorageClient';
 
 
@@ -10,7 +10,7 @@ interface IBaseContract {
   // submitTask(): Promise<string>;
   // getTaskResult(): Promise<string>;
 }
-export default class BaseContract extends BaseArweave implements IBaseContract {
+export default class BaseContract extends Utils implements IBaseContract {
   storageType: StorageType;
   storage: any;
   constructor(chainName, storageType: StorageType) {

@@ -64,23 +64,6 @@ export default class AOTask {
     const res = Messages[0].Data;
     return res;
   }
-  /**
-   * Asynchronously retrieves the computation price.
-   *
-   * @param {string} symbol - The symbol for which to compute the price.
-   * @returns {Promise<any>} - The result containing the computed price information.
-   */
-  async getComputationPrice(symbol: string) {
-    const { Messages } = await dryrun({
-      process: TASKS_PROCESS_ID,
-      tags: [
-        { name: 'Action', value: 'ComputationPrice' },
-        { name: 'PriceSymbol', value: symbol }
-      ]
-    });
-    const res = Messages[0].Data;
-    return res;
-  }
 
   /**
    * Asynchronously reports the result of a task to a specified process.

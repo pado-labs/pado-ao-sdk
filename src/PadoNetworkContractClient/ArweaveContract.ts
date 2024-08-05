@@ -1,9 +1,17 @@
+import { createDataItemSigner } from '@permaweb/aoconnect';
 import Data from 'contracts/AO/Data';
 import Fee from 'contracts/AO/Fee';
 import Helper from 'contracts/AO/Helper';
 import Task from 'contracts/AO/Task';
 import Worker from 'contracts/AO/Worker';
-import { AOCRED_PROCESS_ID, COMPUTELIMIT, DEFAULTENCRYPTIONSCHEMA, MEMORYLIMIT, TASKS_PROCESS_ID, WAR_PROCESS_ID } from '../config';
+import {
+  COMPUTELIMIT,
+  DEFAULTENCRYPTIONSCHEMA,
+  MEMORYLIMIT,
+  SUPPORTSYMBOLONAOFROMADDRESSMAP,
+  SUPPORTSYMBOLSONAO,
+  TASKS_PROCESS_ID
+} from '../config';
 import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../index.d';
 import BaseContract from './BaseContract';
 
@@ -64,20 +72,40 @@ export default class ArweaveContract extends BaseContract {
     const priceInfoStr = JSON.stringify(priceInfo);
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
-    const signer = await this.getSigner(wallet);
+    const signer = await this._getSigner(wallet);
     const dataId = this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }
 
+  /**
+   * Asynchronously retrieves a list of data based on the specified status.
+   * @param dataStatus - The status of the data to retrieve, defaults to 'Valid'.
+   * @returns A promise that resolves to the retrieved data.
+   */
   async getDataList(dataStatus: string = 'Valid') {
     const res = await this.data.allData(dataStatus);
     return res;
   }
+
+  /**
+   * Asynchronously retrieves data by the specified ID.
+   * @param dataId The unique identifier of the data to retrieve.
+   * @returns A promise that resolves to the retrieved data.
+   */
   async getDataById(dataId: string) {
     const res = await this.data.getDataById(dataId);
     return res;
   }
 
+  /**
+   * Submits a task for processing with specific parameters.
+   *
+   * @param taskType - The type of task to be submitted.
+   * @param wallet - The wallet object used for signing transactions.
+   * @param dataId - The ID of the data to be processed in the task.
+   *
+   * @returns A promise that resolves to the ID of the submitted task.
+   */
   async submitTask(taskType: string, wallet: any, dataId: string) {
     const key = await this.generateKey();
     this.userKey = key;
@@ -89,24 +117,19 @@ export default class ArweaveContract extends BaseContract {
     const nodeNames = exData.policy.names;
     const priceObj = JSON.parse(encData.price);
     const symbol = priceObj.symbol;
-    // TODO-ysm
-    const supportSymbols = ['AOCRED', 'wAR'];
-    const supportSymbolFromAddressMap = {
-      AOCRED: AOCRED_PROCESS_ID,
-      wAR: WAR_PROCESS_ID
-    };
-    if (!supportSymbols.includes(symbol)) {
-      throw new Error(`Only support ${supportSymbols.join('/')} now!`);
+    
+    if (!SUPPORTSYMBOLSONAO.includes(symbol)) {
+      throw new Error(`Only support ${SUPPORTSYMBOLSONAO.join('/')} now!`);
     }
     const dataPrice = priceObj.price;
     //get node price
 
     const nodePrice = await this.fee.fetchComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
-    const signer = await this.getSigner(wallet);
+    const signer = await this._getSigner(wallet);
 
     try {
-      const from = supportSymbolFromAddressMap[symbol as keyof typeof supportSymbolFromAddressMap];
+      const from = SUPPORTSYMBOLONAOFROMADDRESSMAP[symbol as keyof typeof SUPPORTSYMBOLONAOFROMADDRESSMAP];
       await this.helper.transfer(from, TASKS_PROCESS_ID, totalPrice.toString(), signer);
     } catch (err) {
       if (err === 'Insufficient Balance!') {
@@ -132,6 +155,13 @@ export default class ArweaveContract extends BaseContract {
     return taskId;
   }
 
+  /**
+   * Asynchronously retrieves the result of a task.
+   *
+   * @param taskId The unique identifier for the task.
+   * @param timeout The timeout duration in milliseconds, defaults to 10000ms.
+   * @returns A promise that resolves to an array of unsigned 8-bit integers representing the task result.
+   */
   async getTaskResult(taskId: string, timeout: number = 10000): Promise<Uint8Array> {
     const taskStr = await this._getCompletedTaskPromise(taskId, timeout);
     const task = JSON.parse(taskStr);
@@ -168,11 +198,17 @@ export default class ArweaveContract extends BaseContract {
     }
     let encMsg = await this.storage.getData(exData.transactionId);
 
-    // TODO-ysm
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
     return new Uint8Array(res.msg);
   }
 
+  /**
+   * Asynchronously retrieves a completed task by its ID within a specified timeout.
+   *
+   * @param {string} taskId - The unique identifier of the task to retrieve.
+   * @param {number} timeout - The maximum time in milliseconds to wait for the task before timing out.
+   * @returns {Promise<string>} A promise that resolves with the task as a string or rejects with a 'timeout' message.
+   */
   private async _getCompletedTaskPromise(taskId: string, timeout: number): Promise<string> {
     return new Promise((resolve, reject) => {
       const start = performance.now();
@@ -190,5 +226,19 @@ export default class ArweaveContract extends BaseContract {
       };
       tick();
     });
+  }
+
+  /**
+   * Formats the signer object.
+   *
+   * This method creates and returns a formatted signer object, which can be used for subsequent signing operations.
+   * It accepts a wallet object as a parameter, which is used to generate the signer.
+   *
+   * @param wallet - The wallet object from which the signer will be created.
+   * @returns The formatted signer object.
+   */
+  private _getSigner(wallet: any): any {
+    const signer = createDataItemSigner(wallet);
+    return signer;
   }
 }

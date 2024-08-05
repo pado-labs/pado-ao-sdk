@@ -1,16 +1,11 @@
-import { createDataItemSigner, dryrun, message, result } from '@permaweb/aoconnect';
-import Arweave from 'arweave';
+import { dryrun, message, result } from '@permaweb/aoconnect';
 import { DATAREGISTRY_PROCESS_ID } from '../../config';
-import { encrypt } from '../../core/utils';
-import { StorageType, type CommonObject, type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../index.d';
-import { submitDataToArseeding } from '../../padoarseeding';
-import { ARConfig, submitDataToAR } from '../../padoarweave';
+import { type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../index.d';
 import { getMessageResultData } from '../../processes/utils';
-import BaseData from '../BaseData';
 import Worker from './Worker';
 
-
-export default class AOData extends BaseData {
+export default class AOData {
+  contractInstance: any;
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.
    * @param encryptionSchema EncryptionSchema
@@ -117,8 +112,8 @@ export default class AOData extends BaseData {
 
     let nodesPublicKey = [] as string[];
     for (let i = 0; i < nodeInfos.length; i++) {
-      policy.indices.push(nodeInfos[i].index); // TODO-ysm
-      policy.names.push(nodeInfos[i].name); // TODO-ysm
+      policy.indices.push(nodeInfos[i].index);
+      policy.names.push(nodeInfos[i].name);
       nodesPublicKey.push(nodeInfos[i].pk);
     }
     const formatPolicy = { ...policy, t: Number(policy.t), n: Number(policy.n) };

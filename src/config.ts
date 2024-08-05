@@ -25,3 +25,10 @@ export const DEFAULTENCRYPTIONSCHEMA = {
   t: '2',
   n: '3'
 };
+
+
+export const SUPPORTSYMBOLSONAO = ['AOCRED', 'wAR'];
+export const SUPPORTSYMBOLONAOFROMADDRESSMAP = {
+  AOCRED: AOCRED_PROCESS_ID,
+  wAR: WAR_PROCESS_ID
+};
