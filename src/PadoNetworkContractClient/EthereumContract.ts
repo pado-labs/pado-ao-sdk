@@ -1,11 +1,19 @@
-import Data from 'contracts/EVM/Data';
-import Fee from 'contracts/EVM/Fee';
-import Helper from 'contracts/EVM/Helper';
-import Task from 'contracts/EVM/Task';
-import Worker from 'contracts/EVM/Worker';
+import Data from '../contracts/EVM/Data';
+import Fee from '../contracts/EVM/Fee';
+import Helper from '../contracts/EVM/Helper';
+import Task from '../contracts/EVM/Task';
+import Worker from '../contracts/EVM/Worker';
 import { DEFAULTENCRYPTIONSCHEMA } from '../config';
-import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type FeeTokenInfo, type PriceInfo } from '../index.d';
+import {
+  KeyInfo,
+  StorageType,
+  type CommonObject,
+  type EncryptionSchema,
+  type FeeTokenInfo,
+  type PriceInfo
+} from '../types/index';
 import BaseContract from './BaseContract';
+import { ChainName } from '../types/index';
 
 
 export default class EthereumContract extends BaseContract {
@@ -15,12 +23,13 @@ export default class EthereumContract extends BaseContract {
   fee: any;
   helper: any;
   userKey: KeyInfo;
-  constructor(chainName: ChainName, storageType: StorageType) {
-    super(chainName, storageType);
-    this.worker = new Worker();
-    this.data = new Data(chainName);
-    this.task = new Task(chainName);
-    this.fee = new Fee(chainName);
+
+  constructor(chainName: ChainName, storageType: StorageType, wallet: any) {
+    super(chainName, storageType, wallet);
+    this.worker = new Worker(chainName, wallet);
+    this.data = new Data(chainName, wallet);
+    this.task = new Task(chainName, wallet);
+    this.fee = new Fee(chainName, wallet);
     this.helper = new Helper(chainName);
     this.userKey = { pk: '', sk: '' };
   }
@@ -39,7 +48,7 @@ export default class EthereumContract extends BaseContract {
    *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
    * @returns The uploaded encrypted data id
    */
-  async submitData(
+  async uploadData(
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
@@ -47,19 +56,23 @@ export default class EthereumContract extends BaseContract {
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
     const [dataId, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
-    const indices =  new Array(Number(encryptionSchema.n)).fill(0);  
-    const names = new Array(Number(encryptionSchema.n)).fill('');  
+    const indices = new Array(Number(encryptionSchema.n)).fill(0);
+    const names = new Array(Number(encryptionSchema.n)).fill('');
     const policy = {
       t: Number(encryptionSchema.t),
       n: Number(encryptionSchema.n),
-      indices, // TODO
-      names // TODO
+      indices,
+      names
     };
     const encryptData = this.encryptData(data, policy, publicKeys);
+    const encryptDataJsonStr = JSON.stringify(encryptData);
     // if (!encryptedData) {
     //   throw new Error('The encrypted Data to be uploaded can not be empty');
     // }
-    let transactionId = await this.storage.submitData(encryptData.enc_msg, wallet);
+    //convert string to Uint8Array
+    const encryptedData = new Uint8Array(Buffer.from(encryptDataJsonStr));
+    //todo save it to arweave
+    const transactionId = await this.storage.submitData(encryptedData, wallet);
     const transactionIdBytes = new Uint8Array(transactionId);
     const dataTagStr = JSON.stringify(dataTag);
     const priceInfoStr = JSON.stringify({
@@ -77,6 +90,7 @@ export default class EthereumContract extends BaseContract {
    * @returns A promise that resolves to the retrieved data list.
    */
   async getDataList(dataStatus: string = 'Valid') {
+    console.log(`dataStatus is${dataStatus}`);
     const res = await this.data.getAllData();
     // TODO Filter data from various states
     return res;
@@ -103,7 +117,7 @@ export default class EthereumContract extends BaseContract {
   async submitTask(taskType: string, wallet: any, dataId: string) {
     const key = await this.generateKey();
     this.userKey = key;
-
+    //todo get from arweave
     let encData = await this.data.getDataById(dataId);
     const { priceInfo: priceObj, workerIds } = encData;
     const { tokenSymbol: symbol, price: dataPrice } = priceObj;
@@ -115,41 +129,47 @@ export default class EthereumContract extends BaseContract {
     }
     //get node price
 
-    const { computingPrice: nodePrice } = await this.fee.getFeeTokenBySymbol(symbol);
-    const totalPrice = Number(dataPrice) + Number(nodePrice) * workerIds.length;
-
-    try {
-      if (symbol === 'ETH') {
-        const from = 'taskContractAddress';
-        // TODO-ysm format amount
-        await this.helper.transferETH(from, totalPrice);
-      }
-    } catch (err) {
-      if (err === 'Insufficient Balance!') {
-        throw new Error(
-          'Insufficient Balance! Please ensure that your wallet balance is greater than ' + totalPrice + symbol
-        );
-      } else {
-        throw err;
-      }
-    }
+    // const { computingPrice: nodePrice } = await this.fee.getFeeTokenBySymbol(symbol);
+    // const totalPrice = Number(dataPrice) + Number(nodePrice) * workerIds.length;
+    //
+    // try {
+    //   if (symbol === 'ETH') {
+    //     const from = 'taskContractAddress';
+    //     // TODO-ysm format amount
+    //     await this.helper.transferETH(from, totalPrice);
+    //   }
+    // } catch (err) {
+    //   if (err === 'Insufficient Balance!') {
+    //     throw new Error(
+    //       'Insufficient Balance! Please ensure that your wallet balance is greater than ' + totalPrice + symbol
+    //     );
+    //   } else {
+    //     throw err;
+    //   }
+    // }
 
     const taskId = await this.task.submit(taskType, this.userKey.pk, dataId);
     return taskId;
   }
 
-  
+
   async getTaskResult(taskId: string, timeout: number = 10000): Promise<Uint8Array> {
     const task = await this.task.getCompletedTaskById(taskId);
 
     let encData = await this.data.getDataById(task.dataId);
+    encData = JSON.parse(encData);
+    let exData = JSON.parse(encData.data);
+
     const { encryptionSchema, workerIds, dataContent } = encData;
-    const { t, n } = encryptionSchema;
     let uint8Array = new Uint8Array(dataContent); // 表示 "Hello" 的 UTF-8 编码
     let decoder = new TextDecoder('utf-8');
-    let transactionId = decoder.decode(uint8Array);  
+    let transactionId = decoder.decode(uint8Array);
     let encMsg = await this.storage.getData(transactionId);
+    const chosenIndices = new Array(Number(encryptionSchema.n)).fill(0);
+    const reencChosenSks = new Array(Number(encryptionSchema.n)).fill('');
+
     // TODO
-    // const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
+    const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
+    return new Uint8Array(res.msg);
   }
 }

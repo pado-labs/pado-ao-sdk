@@ -1,6 +1,6 @@
 import { ethers } from 'ethers';
 import { DATACONTRACTADDRESSES } from '../../config';
-import type { ChainName } from '../../index.d';
+import type { ChainName } from '../../types/index';
 
 
 export default class BaseEVM {

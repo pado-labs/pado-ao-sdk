@@ -1,19 +1,22 @@
-import type { ChainName, CommonObject, EncryptionSchema, PriceInfo, StorageType } from '../index.d';
+import type { ChainName, CommonObject, EncryptionSchema, PriceInfo, StorageType } from '../types/index';
 import ArweaveContract from './ArweaveContract';
 import EthereumContract from './EthereumContract';
-import {DEFAULTENCRYPTIONSCHEMA} from '../config'
+import { DEFAULTENCRYPTIONSCHEMA } from '../config';
 
 const ContractClient = {
   ao: ArweaveContract,
-  sepolia: EthereumContract
+  holesky: EthereumContract,
+  ethereum: EthereumContract
 };
 export default class PadoNetworkContractClient {
   private _client: any;
   private _storageType: StorageType;
-  constructor(chainName: ChainName, storageType: StorageType) {
-    this._client = new ContractClient[chainName]();
+
+  constructor(chainName: ChainName, storageType: StorageType, wallet: any) {
+    this._client = new ContractClient[chainName](chainName, storageType, wallet);
     this._storageType = storageType;
   }
+
   /**
    * Encrypt data and upload encrypted data to decentralized storage blockchains such as Arweave and Filecoin.
    *
@@ -28,14 +31,14 @@ export default class PadoNetworkContractClient {
    *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
    * @returns The uploaded encrypted data id
    */
-  async submitData(
+  async uploadData(
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
     wallet: any,
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
-    const dataId = this._client.submitData(data, dataTag, priceInfo, wallet, encryptionSchema);
+    const dataId = this._client.uploadData(data, dataTag, priceInfo, wallet, encryptionSchema);
     return dataId;
   }
 

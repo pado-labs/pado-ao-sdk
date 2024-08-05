@@ -10,16 +10,17 @@ export const MEMORYLIMIT = '512M';
 
 export const DATACONTRACTADDRESSES = {
   ao: '0x0',
-  sepolia: '0x0'
+  ethereum: '0x0',
+  holesky: '0x0'
 };
 export const FEECONTRACTADDRESSES = {
   ao: '0x0',
-  sepolia: '0x0'
-};
+  ethereum: '0x0',
+  holesky: '0x0'};
 export const TASKCONTRACTADDRESSES = {
   ao: '0x0',
-  sepolia: '0x0'
-};
+  ethereum: '0x0',
+  holesky: '0x0'};
 
 export const DEFAULTENCRYPTIONSCHEMA = {
   t: '2',

@@ -1,9 +1,9 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
-import Data from 'contracts/AO/Data';
-import Fee from 'contracts/AO/Fee';
-import Helper from 'contracts/AO/Helper';
-import Task from 'contracts/AO/Task';
-import Worker from 'contracts/AO/Worker';
+import {AOData} from '../contracts/AO/AOData';
+import {AOFee} from '../contracts/AO/AOFee';
+import Helper from '../contracts/AO/Helper';
+import {AOTask} from '../contracts/AO/AOTask';
+import {AOWorker} from '../contracts/AO/AOWorker';
 import {
   COMPUTELIMIT,
   DEFAULTENCRYPTIONSCHEMA,
@@ -12,8 +12,9 @@ import {
   SUPPORTSYMBOLSONAO,
   TASKS_PROCESS_ID
 } from '../config';
-import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../index.d';
+import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../types/index';
 import BaseContract from './BaseContract';
+import { ChainName } from '../types/index';
 
 
 export default class ArweaveContract extends BaseContract {
@@ -23,13 +24,16 @@ export default class ArweaveContract extends BaseContract {
   fee: any;
   helper: any;
   userKey: KeyInfo;
-  constructor(chainName: ChainName, storageType: StorageType) {
-    super(chainName, storageType);
-    this.worker = new Worker();
-    this.data = new Data();
-    this.task = new Task();
-    this.fee = new Fee();
+  wallet: any;
+
+  constructor(chainName: ChainName, storageType: StorageType, wallet:  any) {
+    super(chainName, storageType,wallet);
+    this.worker = new AOWorker();
+    this.data = new AOData();
+    this.task = new AOTask();
+    this.fee = new AOFee();
     this.helper = new Helper();
+    this.wallet = wallet;
     this.userKey = { pk: '', sk: '' };
   }
 
@@ -47,7 +51,7 @@ export default class ArweaveContract extends BaseContract {
    *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
    * @returns The uploaded encrypted data id
    */
-  async submitData(
+  async uploadData(
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
@@ -59,7 +63,7 @@ export default class ArweaveContract extends BaseContract {
     // if (!encryptedData) {
     //   throw new Error('The encrypted Data to be uploaded can not be empty');
     // }
-    let transactionId = await this.storage.submitData(encryptData.enc_msg, wallet);
+    let transactionId = await this.storage.submitData(encryptData.enc_msg, this.wallet);
     dataTag['storageType'] = this.storage.StorageType;
 
     const txData = {
@@ -72,7 +76,7 @@ export default class ArweaveContract extends BaseContract {
     const priceInfoStr = JSON.stringify(priceInfo);
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
-    const signer = await this._getSigner(wallet);
+    const signer = await this._getSigner(this.wallet);
     const dataId = this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }

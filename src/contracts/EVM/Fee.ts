@@ -1,5 +1,6 @@
-import type { Address, Allowance, Bytes32, FeeTokenInfo, Uint256 } from '../../index.d';
-import BaseEVM from './BaseEVM'
+import type { Address, Allowance, Bytes32, FeeTokenInfo, Uint256 } from '../../types/index';
+import BaseEVM from './BaseEVM';
+import {ChainName} from '../../types/index';
 
 export default class Fee extends BaseEVM {
   
@@ -8,8 +9,8 @@ export default class Fee extends BaseEVM {
    * @param chainName The name of the chain, used to identify and differentiate between different chains.
    * @param provider The provider object for the blockchain, used to establish and manage the connection with the blockchain.
    */
-  constructor(chainName: ChainName, provider: any = window.ethereum) {
-    super(chainName,provider)
+  constructor(chainName: ChainName, provider: any = (window as any).ethereum) {
+    super(chainName,provider);
     this.feeTokens = [];
   }
 

@@ -1,4 +1,4 @@
-import { CommonObject, type KeyInfo, type PolicyInfo } from '../index.d';
+import { CommonObject, type KeyInfo, type PolicyInfo } from '../types/index';
 
 var lhe: any;
 if (typeof process !== 'undefined' && process.versions && process.versions.node) {
@@ -6,7 +6,7 @@ if (typeof process !== 'undefined' && process.versions && process.versions.node)
     lhe = lhei;
   });
 } else {
-  lhe = window.Module;
+  lhe = (window as any).Module;
 }
 const lhe_call = (func: any, param_obj: any) => {
   let param_json = JSON.stringify(param_obj);
