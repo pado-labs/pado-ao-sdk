@@ -1,5 +1,29 @@
-import { decrypt, encrypt, keygen, THRESHOLD_2_3 } from '../algorithm';
 import { CommonObject, type KeyInfo, type PolicyInfo } from '../index.d';
+
+var lhe: any;
+if (typeof process !== 'undefined' && process.versions && process.versions.node) {
+  import('../lib/lhe').then((lhei) => {
+    lhe = lhei;
+  });
+} else {
+  lhe = window.Module;
+}
+const lhe_call = (func: any, param_obj: any) => {
+  let param_json = JSON.stringify(param_obj);
+  let param_ptr = lhe.allocateUTF8(param_json);
+
+  let cptr = func(param_ptr);
+  lhe._free(param_ptr);
+
+  let ret_json = lhe.UTF8ToString(cptr);
+  lhe._free_cptr(cptr);
+
+  let ret_obj = JSON.parse(ret_json);
+
+  return ret_obj;
+};
+
+export const THRESHOLD_2_3 = { t: 2, n: 3, indices: [1, 2, 3] };
 
 export default class Utils {
   constructor() {}
@@ -8,10 +32,11 @@ export default class Utils {
    *
    * @returns Return the key pair object which contains pk and sk fields
    */
-  async generateKey(): Promise<KeyInfo> {
+  async generateKey(param_obj: any = THRESHOLD_2_3): Promise<KeyInfo> {
     return new Promise((resolve) => {
       setTimeout(() => {
-        resolve(keygen());
+        const keys = lhe_call(lhe._keygen, param_obj);
+        resolve(keys);
       }, 1000);
     });
   }
@@ -31,7 +56,20 @@ export default class Utils {
     if (data.length === 0) {
       throw new Error('The Data to be encrypted can not be empty');
     }
-    const res = encrypt(publicKeys, data, policy);
+    // const res = encrypt(publicKeys, data, policy);
+    let msg_len = data.length;
+    let msg_ptr = lhe._malloc(msg_len);
+    let msg_buffer = new Uint8Array(lhe.wasmMemory.buffer, msg_ptr, msg_len);
+    msg_buffer.set(data);
+
+    let param_obj = { ...policy, node_pks: publicKeys, msg_len: msg_len, msg_ptr: msg_ptr };
+
+    let res = lhe_call(lhe._encrypt, param_obj);
+    lhe._free(msg_ptr);
+
+    let dataview = new Uint8Array(lhe.wasmMemory.buffer, res.emsg_ptr, res.emsg_len);
+    res.enc_msg = new Uint8Array(dataview);
+    lhe._free(res.emsg_ptr);
     return Object.assign(res, { policy });
   }
 
@@ -54,7 +92,32 @@ export default class Utils {
     chosen_indices: number[],
     threshold: any = THRESHOLD_2_3
   ): CommonObject {
-    return decrypt(reenc_sks, consumer_sk, nonce, enc_msg, chosen_indices, threshold);
+    let emsg_len = enc_msg.length;
+    let emsg_ptr = lhe._malloc(emsg_len);
+    let emsg_buffer = new Uint8Array(lhe.wasmMemory.buffer, emsg_ptr, emsg_len);
+    emsg_buffer.set(enc_msg);
+
+    let param_obj = {
+      ...threshold,
+      reenc_sks: reenc_sks,
+      consumer_sk: consumer_sk,
+      nonce: nonce,
+      emsg_ptr: emsg_ptr,
+      emsg_len: emsg_len,
+      chosen_indices: chosen_indices
+    };
+
+    let res = lhe_call(lhe._decrypt, param_obj);
+    lhe._free(emsg_ptr);
+
+    let dataview = new Uint8Array(lhe.wasmMemory.buffer, res.msg_ptr, res.msg_len);
+    res.msg = new Uint8Array(dataview);
+    lhe._free(res.msg_ptr);
+    return res;
   }
-  
+
+  reencrypt(enc_sk: string, node_sk: string, consumer_pk: string, threshold: any = THRESHOLD_2_3) {
+    let param_obj = { ...threshold, enc_sk: enc_sk, node_sk: node_sk, consumer_pk: consumer_pk };
+    return lhe_call(lhe._reencrypt, param_obj);
+  }
 }
