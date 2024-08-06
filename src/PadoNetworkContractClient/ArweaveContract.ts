@@ -1,9 +1,9 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
-import {AOData} from '../contracts/AO/AOData';
-import {AOFee} from '../contracts/AO/AOFee';
+import { AOData } from '../contracts/AO/AOData';
+import { AOFee } from '../contracts/AO/AOFee';
 import Helper from '../contracts/AO/Helper';
-import {AOTask} from '../contracts/AO/AOTask';
-import {AOWorker} from '../contracts/AO/AOWorker';
+import { AOTask } from '../contracts/AO/AOTask';
+import { AOWorker } from '../contracts/AO/AOWorker';
 import {
   COMPUTELIMIT,
   DEFAULTENCRYPTIONSCHEMA,
@@ -15,6 +15,7 @@ import {
 import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../types/index';
 import BaseContract from './BaseContract';
 import { ChainName } from '../types/index';
+import Utils from '../Common/Utils';
 
 
 export default class ArweaveContract extends BaseContract {
@@ -23,18 +24,27 @@ export default class ArweaveContract extends BaseContract {
   task: any;
   fee: any;
   helper: any;
-  userKey: KeyInfo;
+  userKey: KeyInfo | undefined;
   wallet: any;
 
-  constructor(chainName: ChainName, storageType: StorageType, wallet:  any) {
-    super(chainName, storageType,wallet);
+  constructor(chainName: ChainName, storageType: StorageType, wallet: any, userKey?: KeyInfo) {
+    super(chainName, storageType, wallet);
     this.worker = new AOWorker();
     this.data = new AOData();
     this.task = new AOTask();
     this.fee = new AOFee();
     this.helper = new Helper();
     this.wallet = wallet;
-    this.userKey = { pk: '', sk: '' };
+    if (userKey) {
+      this.userKey = userKey;
+    } else {
+      this.initializeUserKey(chainName, wallet);
+    }
+  }
+
+  private async initializeUserKey(chainName: ChainName, wallet: any): Promise<void> {
+    const utils = new Utils();
+    this.userKey = await utils.generateKey();
   }
 
   /**
@@ -121,14 +131,14 @@ export default class ArweaveContract extends BaseContract {
     const nodeNames = exData.policy.names;
     const priceObj = JSON.parse(encData.price);
     const symbol = priceObj.symbol;
-    
+
     if (!SUPPORTSYMBOLSONAO.includes(symbol)) {
       throw new Error(`Only support ${SUPPORTSYMBOLSONAO.join('/')} now!`);
     }
     const dataPrice = priceObj.price;
     //get node price
 
-    const nodePrice = await this.fee.fetchComputationPrice(symbol);
+    const nodePrice = await this.fee.getComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
     const signer = await this._getSigner(wallet);
 
@@ -202,6 +212,9 @@ export default class ArweaveContract extends BaseContract {
     }
     let encMsg = await this.storage.getData(exData.transactionId);
 
+    if(!this.userKey){
+      throw Error('Please set user key!');
+    }
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
     return new Uint8Array(res.msg);
   }

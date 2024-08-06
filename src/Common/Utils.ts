@@ -32,7 +32,7 @@ export default class Utils {
    *
    * @returns Return the key pair object which contains pk and sk fields
    */
-  async generateKey(param_obj: any = THRESHOLD_2_3): Promise<KeyInfo> {
+async generateKey(param_obj: any = THRESHOLD_2_3): Promise<KeyInfo> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const keys = lhe_call(lhe._keygen, param_obj);

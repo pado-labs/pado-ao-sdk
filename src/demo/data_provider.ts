@@ -2,7 +2,8 @@ import { readFileSync } from 'node:fs';
 import { exit } from 'node:process';
 import './proxy.js';
 import PadoNetworkContractClient from '../PadoNetworkContractClient';
-import { StorageType } from '../types/index';
+import { StorageType,ChainName } from '../types/index';
+import Utils from '../Common/Utils';
 
 /**
  * Usage:
@@ -27,6 +28,9 @@ async function main() {
 
   // price for the data
   let priceInfo = { price: '200000000', symbol: 'wAR' };
+  let key = await new Utils().generateKey();
+
+
 
   const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallet);
 

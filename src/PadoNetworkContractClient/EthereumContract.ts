@@ -14,6 +14,7 @@ import {
 } from '../types/index';
 import BaseContract from './BaseContract';
 import { ChainName } from '../types/index';
+import Utils from '../Common/Utils';
 
 
 export default class EthereumContract extends BaseContract {
@@ -22,16 +23,25 @@ export default class EthereumContract extends BaseContract {
   task: any;
   fee: any;
   helper: any;
-  userKey: KeyInfo;
+  userKey: KeyInfo | undefined;
 
-  constructor(chainName: ChainName, storageType: StorageType, wallet: any) {
+  constructor(chainName: ChainName, storageType: StorageType, wallet: any, userKey?: KeyInfo) {
     super(chainName, storageType, wallet);
     this.worker = new Worker(chainName, wallet);
     this.data = new Data(chainName, wallet);
     this.task = new Task(chainName, wallet);
     this.fee = new Fee(chainName, wallet);
     this.helper = new Helper(chainName);
-    this.userKey = { pk: '', sk: '' };
+    if(userKey){
+      this.userKey = userKey;
+    }else {
+      this.initializeUserKey(chainName, wallet);
+    }
+  }
+
+  private async initializeUserKey(chainName: ChainName, wallet: any): Promise<void> {
+    const utils = new Utils();
+    this.userKey = await utils.generateKey();
   }
 
   /**
@@ -168,7 +178,9 @@ export default class EthereumContract extends BaseContract {
     const chosenIndices = new Array(Number(encryptionSchema.n)).fill(0);
     const reencChosenSks = new Array(Number(encryptionSchema.n)).fill('');
 
-    // TODO
+    if(!this.userKey){
+      throw Error('Please set user key!');
+    }
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
     return new Uint8Array(res.msg);
   }
