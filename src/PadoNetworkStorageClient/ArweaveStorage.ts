@@ -1,4 +1,4 @@
-import type { createTransactionParamsTuple, signParamsTuple } from '../index.d';
+import type { createTransactionParamsTuple, signParamsTuple } from '../types/index';
 import BaseStorage from './BaseStorage';
 
 

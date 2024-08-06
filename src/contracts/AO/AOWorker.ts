@@ -1,10 +1,10 @@
 import { dryrun, message, result } from '@permaweb/aoconnect';
 import { NODEREGISTRY_PROCESS_ID } from '../../config';
-import type { nodeInfo } from '../../index.d';
-import { getMessageResultData } from '../../processes/utils';
+import type { nodeInfo } from '../../types/index';
+import { getMessageResultData } from './util/utils';
 
 
-export default class AOWorker {
+export class AOWorker {
   constructor() {}
 
   /**

@@ -1,8 +1,8 @@
 import { dryrun, message, result } from '@permaweb/aoconnect';
 import { TASKS_PROCESS_ID } from '../../config';
-import { getMessageResultData } from '../../processes/utils';
+import { getMessageResultData } from './util/utils';
 
-export default class AOTask {
+export class AOTask {
   constructor() {}
   /**
    * Asynchronously submits a task to the system.

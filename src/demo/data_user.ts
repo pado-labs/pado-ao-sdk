@@ -1,16 +1,18 @@
-import { generateKey, submitTask, getResult } from "../index";
-import { readFileSync } from "node:fs";
-import { exit } from "node:process";
-import "./proxy.js";
+import { readFileSync } from 'node:fs';
+import { exit } from 'node:process';
+import './proxy.js';
+import PadoNetworkContractClient from '../PadoNetworkContractClient/index';
+import { StorageType } from '../types';
+import Utils from '../Common/Utils';
 
 /**
  * Usage:
  *   node /path/to/data_user.js <your-wallet-path> <data-id>
  */
 async function main() {
-  const args = process.argv.slice(2)
+  const args = process.argv.slice(2);
   if (args.length < 1) {
-    console.log("args: <walletpath> <dataId>");
+    console.log('args: <walletpath> <dataId>');
     exit(2);
   }
   let walletpath = args[0];
@@ -20,17 +22,19 @@ async function main() {
 
   // load your arweave wallet
   const wallet = JSON.parse(readFileSync(walletpath).toString());
+  const wallets = {
+    wallet: wallet,
+    storageWallet: wallet
+  };
 
-
-  // generate key pair
-  let key = await generateKey();
-
+  const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallets);
   // submit a task to AO process
-  const taskId = await submitTask(dataId, key.pk, wallet);
+  const taskId = await padoNetworkClient.submitTask('', wallet,dataId);
   console.log(`TASKID=${taskId}`);
-
+  // timeout is 10s
+  const timeout = 10 * 1000;
   // get the result (If you want to do a local test, refer to the README to initialize arweave and then pass it to getResult)
-  const [err, data] = await getResult(taskId, key.sk).then(data => [null, data]).catch(err => [err, null]);
+  const [err, data] = await padoNetworkClient.getTaskResult(taskId, timeout).then(data => [null, data]).catch((err: any) => [err, null]);
   console.log(`err=${err}`);
   console.log(`data=${data}`);
 
@@ -41,4 +45,5 @@ async function main() {
     console.log(`data=${data}`);
   }*/
 }
+
 main();

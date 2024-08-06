@@ -3,7 +3,7 @@ import { ethers } from 'ethers';
 
 export default class Helper {
   signer: any;
-  constructor(provider = window.ethereum) {
+  constructor(provider = (window as any).ethereum) {
     this._init(provider);
   }
 

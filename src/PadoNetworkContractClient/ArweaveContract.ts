@@ -1,9 +1,9 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
-import Data from 'contracts/AO/Data';
-import Fee from 'contracts/AO/Fee';
-import Helper from 'contracts/AO/Helper';
-import Task from 'contracts/AO/Task';
-import Worker from 'contracts/AO/Worker';
+import { AOData } from '../contracts/AO/AOData';
+import { AOFee } from '../contracts/AO/AOFee';
+import Helper from '../contracts/AO/Helper';
+import { AOTask } from '../contracts/AO/AOTask';
+import { AOWorker } from '../contracts/AO/AOWorker';
 import {
   COMPUTELIMIT,
   DEFAULTENCRYPTIONSCHEMA,
@@ -12,8 +12,16 @@ import {
   SUPPORTSYMBOLSONAO,
   TASKS_PROCESS_ID
 } from '../config';
-import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../index.d';
+import {
+  KeyInfo,
+  StorageType,
+  type CommonObject,
+  type EncryptionSchema,
+  type PriceInfo,
+  Wallets
+} from '../types/index';
 import BaseContract from './BaseContract';
+import { ChainName } from '../types/index';
 
 
 export default class ArweaveContract extends BaseContract {
@@ -22,15 +30,27 @@ export default class ArweaveContract extends BaseContract {
   task: any;
   fee: any;
   helper: any;
-  userKey: KeyInfo;
-  constructor(chainName: ChainName, storageType: StorageType) {
-    super(chainName, storageType);
-    this.worker = new Worker();
-    this.data = new Data();
-    this.task = new Task();
-    this.fee = new Fee();
+  userKey: KeyInfo | undefined;
+
+  constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
+    super(chainName, storageType, wallets);
+    this.worker = new AOWorker();
+    this.data = new AOData();
+    this.task = new AOTask();
+    this.fee = new AOFee();
     this.helper = new Helper();
-    this.userKey = { pk: '', sk: '' };
+    if (userKey) {
+      this.userKey = userKey;
+    } else {
+      this.initializeUserKey().then(() => {
+      }).catch((err) => {
+        console.log(err);
+      });
+    }
+  }
+
+  private async initializeUserKey(): Promise<void> {
+    this.userKey = await this.generateKey();
   }
 
   /**
@@ -47,11 +67,10 @@ export default class ArweaveContract extends BaseContract {
    *                        - symbolTag :  The tag corresponding to the token used for payment. ref: https://web3infra.dev/docs/arseeding/sdk/arseeding-js/getTokenTag
    * @returns The uploaded encrypted data id
    */
-  async submitData(
+  async uploadData(
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
-    wallet: any,
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
     const [policy, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
@@ -59,7 +78,7 @@ export default class ArweaveContract extends BaseContract {
     // if (!encryptedData) {
     //   throw new Error('The encrypted Data to be uploaded can not be empty');
     // }
-    let transactionId = await this.storage.submitData(encryptData.enc_msg, wallet);
+    let transactionId = await this.storage.submitData(encryptData.enc_msg, this.storageWallet);
     dataTag['storageType'] = this.storage.StorageType;
 
     const txData = {
@@ -72,7 +91,7 @@ export default class ArweaveContract extends BaseContract {
     const priceInfoStr = JSON.stringify(priceInfo);
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
-    const signer = await this._getSigner(wallet);
+    const signer = await this._getSigner(this.wallet);
     const dataId = this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }
@@ -107,24 +126,20 @@ export default class ArweaveContract extends BaseContract {
    * @returns A promise that resolves to the ID of the submitted task.
    */
   async submitTask(taskType: string, wallet: any, dataId: string) {
-    const key = await this.generateKey();
-    this.userKey = key;
-
     let encData = await this.data.getDataById(dataId);
-
     encData = JSON.parse(encData);
     const exData = JSON.parse(encData.data);
     const nodeNames = exData.policy.names;
     const priceObj = JSON.parse(encData.price);
     const symbol = priceObj.symbol;
-    
+
     if (!SUPPORTSYMBOLSONAO.includes(symbol)) {
       throw new Error(`Only support ${SUPPORTSYMBOLSONAO.join('/')} now!`);
     }
     const dataPrice = priceObj.price;
     //get node price
 
-    const nodePrice = await this.fee.fetchComputationPrice(symbol);
+    const nodePrice = await this.fee.getComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
     const signer = await this._getSigner(wallet);
 
@@ -140,8 +155,10 @@ export default class ArweaveContract extends BaseContract {
         throw err;
       }
     }
-
-    let inputData = { dataId, consumerPk: key.pk };
+    if (!this.userKey) {
+      throw Error('Please set user key!');
+    }
+    let inputData = { dataId, consumerPk: this.userKey.pk };
     // const TASKTYPE= 'ZKLHEDataSharing'
     const taskId = await this.task.submit(
       taskType,
@@ -198,6 +215,9 @@ export default class ArweaveContract extends BaseContract {
     }
     let encMsg = await this.storage.getData(exData.transactionId);
 
+    if (!this.userKey) {
+      throw Error('Please set user key!');
+    }
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
     return new Uint8Array(res.msg);
   }

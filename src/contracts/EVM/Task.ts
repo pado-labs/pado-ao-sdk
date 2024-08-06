@@ -1,6 +1,6 @@
-import type { Bytes, Bytes32, ChainName, Task, Uint32 } from '../../index.d';
+import type { Bytes, Bytes32, ChainName, Task, Uint32 } from '../../types/index';
 import BaseEVM from './BaseEVM';
-import abiJson from './abi/taskMgt.json'
+import abiJson from './abi/taskMgt.json';
 
 export default class TaskC extends BaseEVM {
   constructor(chainName: ChainName, wallet: any) {

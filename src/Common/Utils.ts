@@ -1,4 +1,4 @@
-import { CommonObject, type KeyInfo, type PolicyInfo } from '../index.d';
+import { CommonObject, type KeyInfo, type PolicyInfo } from '../types/index';
 
 var lhe: any;
 if (typeof process !== 'undefined' && process.versions && process.versions.node) {
@@ -6,7 +6,7 @@ if (typeof process !== 'undefined' && process.versions && process.versions.node)
     lhe = lhei;
   });
 } else {
-  lhe = window.Module;
+  lhe = (window as any).Module;
 }
 const lhe_call = (func: any, param_obj: any) => {
   let param_json = JSON.stringify(param_obj);
@@ -32,7 +32,7 @@ export default class Utils {
    *
    * @returns Return the key pair object which contains pk and sk fields
    */
-  async generateKey(param_obj: any = THRESHOLD_2_3): Promise<KeyInfo> {
+async generateKey(param_obj: any = THRESHOLD_2_3): Promise<KeyInfo> {
     return new Promise((resolve) => {
       setTimeout(() => {
         const keys = lhe_call(lhe._keygen, param_obj);

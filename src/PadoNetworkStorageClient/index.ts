@@ -1,4 +1,4 @@
-import { StorageType } from 'index.d';
+import { StorageType } from '../types/index';
 import ArseedingStorage from './ArseedingStorage';
 import ArweaveStorage from './ArweaveStorage';
 

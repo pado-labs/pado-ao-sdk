@@ -8,14 +8,14 @@ import type {
   EncryptionSchema,
   PrepareRegistryReturnType,
   PriceInfoT
-} from '../../index.d';
+} from '../../types/index';
 import abiJson from './abi/dataMgt.json';
 import BaseEVM from './BaseEVM';
 
 
 export default class Data extends BaseEVM {
   constructor(chainName: ChainName, wallet: any) {
-    super(chainName, wallet)
+    super(chainName, wallet);
     this._initContractInstance(abiJson);
   }
   /**
