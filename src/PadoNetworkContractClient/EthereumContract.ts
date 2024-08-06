@@ -75,15 +75,9 @@ export default class EthereumContract extends BaseContract {
       indices,
       names
     };
-    const encryptData = this.encryptData(data, policy, publicKeys);
-    const encryptDataJsonStr = JSON.stringify(encryptData);
-    // if (!encryptedData) {
-    //   throw new Error('The encrypted Data to be uploaded can not be empty');
-    // }
-    //convert string to Uint8Array
-    const encryptedData = new Uint8Array(Buffer.from(encryptDataJsonStr));
+    const encryptData = this.encrypt_v2(publicKeys,data, policy);
     //save it to arweave
-    const transactionId = await this.storage.submitData(encryptedData, this.storageWallet);
+    const transactionId = await this.storage.submitData(encryptData, this.storageWallet);
     const transactionIdBytes = new Uint8Array(transactionId);
     const dataTagStr = JSON.stringify(dataTag);
     const priceInfoStr = JSON.stringify({
