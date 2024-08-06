@@ -15,7 +15,6 @@ import {
 import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../types/index';
 import BaseContract from './BaseContract';
 import { ChainName } from '../types/index';
-import Utils from '../Common/Utils';
 
 
 export default class ArweaveContract extends BaseContract {
@@ -38,13 +37,15 @@ export default class ArweaveContract extends BaseContract {
     if (userKey) {
       this.userKey = userKey;
     } else {
-      this.initializeUserKey(chainName, wallet);
+      this.initializeUserKey().then(() => {
+      }).catch((err) => {
+        console.log(err);
+      });
     }
   }
 
-  private async initializeUserKey(chainName: ChainName, wallet: any): Promise<void> {
-    const utils = new Utils();
-    this.userKey = await utils.generateKey();
+  private async initializeUserKey(): Promise<void> {
+    this.userKey = await this.generateKey();
   }
 
   /**
@@ -121,11 +122,7 @@ export default class ArweaveContract extends BaseContract {
    * @returns A promise that resolves to the ID of the submitted task.
    */
   async submitTask(taskType: string, wallet: any, dataId: string) {
-    const key = await this.generateKey();
-    this.userKey = key;
-
     let encData = await this.data.getDataById(dataId);
-
     encData = JSON.parse(encData);
     const exData = JSON.parse(encData.data);
     const nodeNames = exData.policy.names;
@@ -154,8 +151,10 @@ export default class ArweaveContract extends BaseContract {
         throw err;
       }
     }
-
-    let inputData = { dataId, consumerPk: key.pk };
+    if (!this.userKey) {
+      throw Error('Please set user key!');
+    }
+    let inputData = { dataId, consumerPk: this.userKey.pk };
     // const TASKTYPE= 'ZKLHEDataSharing'
     const taskId = await this.task.submit(
       taskType,
@@ -212,7 +211,7 @@ export default class ArweaveContract extends BaseContract {
     }
     let encMsg = await this.storage.getData(exData.transactionId);
 
-    if(!this.userKey){
+    if (!this.userKey) {
       throw Error('Please set user key!');
     }
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);

@@ -14,7 +14,6 @@ import {
 } from '../types/index';
 import BaseContract from './BaseContract';
 import { ChainName } from '../types/index';
-import Utils from '../Common/Utils';
 
 
 export default class EthereumContract extends BaseContract {
@@ -32,16 +31,18 @@ export default class EthereumContract extends BaseContract {
     this.task = new Task(chainName, wallet);
     this.fee = new Fee(chainName, wallet);
     this.helper = new Helper(chainName);
-    if(userKey){
+    if (userKey) {
       this.userKey = userKey;
-    }else {
-      this.initializeUserKey(chainName, wallet);
+    } else {
+      this.initializeUserKey().then(() => {
+      }).catch((err) => {
+        console.log(err);
+      });
     }
   }
 
-  private async initializeUserKey(chainName: ChainName, wallet: any): Promise<void> {
-    const utils = new Utils();
-    this.userKey = await utils.generateKey();
+  private async initializeUserKey(): Promise<void> {
+    this.userKey = await this.generateKey();
   }
 
   /**
@@ -81,7 +82,7 @@ export default class EthereumContract extends BaseContract {
     // }
     //convert string to Uint8Array
     const encryptedData = new Uint8Array(Buffer.from(encryptDataJsonStr));
-    //todo save it to arweave
+    //save it to arweave
     const transactionId = await this.storage.submitData(encryptedData, wallet);
     const transactionIdBytes = new Uint8Array(transactionId);
     const dataTagStr = JSON.stringify(dataTag);
@@ -125,8 +126,6 @@ export default class EthereumContract extends BaseContract {
    * @returns {Promise<string>} - The ID of the submitted task.
    */
   async submitTask(taskType: string, wallet: any, dataId: string) {
-    const key = await this.generateKey();
-    this.userKey = key;
     //todo get from arweave
     let encData = await this.data.getDataById(dataId);
     const { priceInfo: priceObj, workerIds } = encData;
@@ -157,8 +156,13 @@ export default class EthereumContract extends BaseContract {
     //     throw err;
     //   }
     // }
+    if (!this.userKey) {
+      throw Error('Please set user key!');
+    }
+    //todo save pk to storage
 
-    const taskId = await this.task.submit(taskType, this.userKey.pk, dataId);
+    const pkTransactionHash = await this.storage.submitData(new Uint8Array(Buffer.from(this.userKey.pk)),wallet);
+    const taskId = await this.task.submitTask(taskType, pkTransactionHash, dataId);
     return taskId;
   }
 
@@ -171,14 +175,14 @@ export default class EthereumContract extends BaseContract {
     let exData = JSON.parse(encData.data);
 
     const { encryptionSchema, workerIds, dataContent } = encData;
-    let uint8Array = new Uint8Array(dataContent); // 表示 "Hello" 的 UTF-8 编码
+    let uint8Array = new Uint8Array(dataContent);
     let decoder = new TextDecoder('utf-8');
     let transactionId = decoder.decode(uint8Array);
     let encMsg = await this.storage.getData(transactionId);
     const chosenIndices = new Array(Number(encryptionSchema.n)).fill(0);
     const reencChosenSks = new Array(Number(encryptionSchema.n)).fill('');
 
-    if(!this.userKey){
+    if (!this.userKey) {
       throw Error('Please set user key!');
     }
     const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
