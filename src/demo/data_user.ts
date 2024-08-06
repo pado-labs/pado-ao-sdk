@@ -22,7 +22,12 @@ async function main() {
 
   // load your arweave wallet
   const wallet = JSON.parse(readFileSync(walletpath).toString());
-  const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallet);
+  const wallets = {
+    wallet: wallet,
+    storageWallet: wallet
+  };
+
+  const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallets);
   // submit a task to AO process
   const taskId = await padoNetworkClient.submitTask('', wallet,dataId);
   console.log(`TASKID=${taskId}`);

@@ -2,6 +2,7 @@ export interface PriceInfo {
   price: string;
   symbol: string;
 }
+
 export interface PriceInfoT {
   price: Uint256; // The price of data
   tokenSymbol: string; // The token symbol of price
@@ -36,6 +37,7 @@ export interface nodeInfo {
   name: string;
   pk: string;
 }
+
 export type KeyInfo = {
   pk: string;
   sk: string;
@@ -77,6 +79,7 @@ export enum StorageType {
   ARWEAVE = 'arweave',
   ARSEEDING = 'arseeding'
 }
+
 export type ChainName = 'ao' | 'holesky' | 'ethereum'
 
 /**
@@ -103,7 +106,7 @@ export type FeeTokenInfo = {
   tokenAddress: Address; // Fee token address.
   computingPrice: Uint256; // computing price.
 }
-export type  Allowance ={
+export type  Allowance = {
   free: Uint256;
   locked: Uint256;
 }
@@ -112,17 +115,18 @@ export type  Allowance ={
 export type TaskDataInfo = {
   dataEncryptionPk: Bytes; // The data encryption Public Key.
   price: Uint256; // The data pice.
-  dataProviders: Address[] ; // The address array of data providers related to the task.
-  data: Bytes[] ; // Data Providers provides data array.
+  dataProviders: Address[]; // The address array of data providers related to the task.
+  data: Bytes[]; // Data Providers provides data array.
 }
 export type ComputingInfo = {
   price: Uint256; // The computing price.
   t: Uint32; // Threshold t.
   n: Uint32; // Threshold n.
-  workerIds: Bytes32[] ; // An array of worker ids that compute the task.
+  workerIds: Bytes32[]; // An array of worker ids that compute the task.
   results: Bytes[]; // The workers' results of the task.
   waitingList: Bytes32[]; // The workers should report.
 }
+
 export enum TaskStatus {
   NEVER_USED,
   EMPTY_DATA,
@@ -132,9 +136,9 @@ export enum TaskStatus {
 }
 
 export type Task = {
-  taskId: Bytes32 ; // The UID of the task.
-  taskType: TaskType ; // The type of the task.
-  consumerPk: Bytes ; // The Public Key of the Network Consumer.
+  taskId: Bytes32; // The UID of the task.
+  taskType: TaskType; // The type of the task.
+  consumerPk: Bytes; // The Public Key of the Network Consumer.
   tokenSymbol: string; // The token symbol of data and computing fee.
   dataId: Bytes32; // The id of the data
   dataInfo: TaskDataInfo; // Data information related to the task.
@@ -143,5 +147,10 @@ export type Task = {
   status: TaskStatus; // The status of the task.
   submitter: Address; // The submitter of the task.
   code: Bytes; // The task code to run, the field can empty.
+}
+
+export type Wallets = {
+  wallet: any;
+  storageWallet: any;
 }
 

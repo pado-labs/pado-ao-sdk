@@ -29,12 +29,15 @@ async function main() {
   // price for the data
   let priceInfo = { price: '200000000', symbol: 'wAR' };
   let key = await new Utils().generateKey();
+  const wallets = {
+    wallet: wallet,
+    storageWallet: wallet
+  };
 
+  //chainName will provided by caller
+  const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallets);
 
-
-  const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallet);
-
-  const dataId = await padoNetworkClient.uploadData(data, dataTag, priceInfo,wallet);
+  const dataId = await padoNetworkClient.uploadData(data, dataTag, priceInfo);
 
   // upload your data (If you want to do a local test, refer to the README to initialize arweave and then pass it to uploadData)
   console.log(`DATAID=${dataId}`);

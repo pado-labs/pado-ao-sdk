@@ -1,4 +1,4 @@
-import type { ChainName, CommonObject, EncryptionSchema, KeyInfo, PriceInfo, StorageType } from '../types/index';
+import { ChainName, CommonObject, EncryptionSchema, KeyInfo, PriceInfo, StorageType, Wallets } from '../types/index';
 import ArweaveContract from './ArweaveContract';
 import EthereumContract from './EthereumContract';
 import { DEFAULTENCRYPTIONSCHEMA } from '../config';
@@ -12,11 +12,11 @@ export default class PadoNetworkContractClient {
   private _client: any;
   private _storageType: StorageType;
 
-  constructor(chainName: ChainName, storageType: StorageType, wallet: any, userKey?: KeyInfo) {
+  constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
     if (userKey) {
-      this._client = new ContractClient[chainName](chainName, storageType, wallet, userKey);
+      this._client = new ContractClient[chainName](chainName, storageType, wallets, userKey);
     } else {
-      this._client = new ContractClient[chainName](chainName, storageType, wallet);
+      this._client = new ContractClient[chainName](chainName, storageType, wallets);
     }
     this._storageType = storageType;
   }
@@ -39,10 +39,9 @@ export default class PadoNetworkContractClient {
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
-    wallet: any,
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
-    const dataId = this._client.uploadData(data, dataTag, priceInfo, wallet, encryptionSchema);
+    const dataId = this._client.uploadData(data, dataTag, priceInfo, encryptionSchema);
     return dataId;
   }
 

@@ -12,7 +12,14 @@ import {
   SUPPORTSYMBOLSONAO,
   TASKS_PROCESS_ID
 } from '../config';
-import { KeyInfo, StorageType, type CommonObject, type EncryptionSchema, type PriceInfo } from '../types/index';
+import {
+  KeyInfo,
+  StorageType,
+  type CommonObject,
+  type EncryptionSchema,
+  type PriceInfo,
+  Wallets
+} from '../types/index';
 import BaseContract from './BaseContract';
 import { ChainName } from '../types/index';
 
@@ -24,16 +31,14 @@ export default class ArweaveContract extends BaseContract {
   fee: any;
   helper: any;
   userKey: KeyInfo | undefined;
-  wallet: any;
 
-  constructor(chainName: ChainName, storageType: StorageType, wallet: any, userKey?: KeyInfo) {
-    super(chainName, storageType, wallet);
+  constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
+    super(chainName, storageType, wallets);
     this.worker = new AOWorker();
     this.data = new AOData();
     this.task = new AOTask();
     this.fee = new AOFee();
     this.helper = new Helper();
-    this.wallet = wallet;
     if (userKey) {
       this.userKey = userKey;
     } else {
@@ -66,7 +71,6 @@ export default class ArweaveContract extends BaseContract {
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
-    wallet: any,
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
     const [policy, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
@@ -74,7 +78,7 @@ export default class ArweaveContract extends BaseContract {
     // if (!encryptedData) {
     //   throw new Error('The encrypted Data to be uploaded can not be empty');
     // }
-    let transactionId = await this.storage.submitData(encryptData.enc_msg, this.wallet);
+    let transactionId = await this.storage.submitData(encryptData.enc_msg, this.storageWallet);
     dataTag['storageType'] = this.storage.StorageType;
 
     const txData = {

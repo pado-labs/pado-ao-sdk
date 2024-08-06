@@ -10,7 +10,7 @@ import {
   type CommonObject,
   type EncryptionSchema,
   type FeeTokenInfo,
-  type PriceInfo
+  type PriceInfo, Wallets
 } from '../types/index';
 import BaseContract from './BaseContract';
 import { ChainName } from '../types/index';
@@ -24,13 +24,13 @@ export default class EthereumContract extends BaseContract {
   helper: any;
   userKey: KeyInfo | undefined;
 
-  constructor(chainName: ChainName, storageType: StorageType, wallet: any, userKey?: KeyInfo) {
-    super(chainName, storageType, wallet);
-    this.worker = new Worker(chainName, wallet);
-    this.data = new Data(chainName, wallet);
-    this.task = new Task(chainName, wallet);
-    this.fee = new Fee(chainName, wallet);
-    this.helper = new Helper(chainName);
+  constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
+    super(chainName, storageType, wallets);
+    this.worker = new Worker(chainName, wallets.wallet);
+    this.data = new Data(chainName, wallets.wallet);
+    this.task = new Task(chainName, wallets.wallet);
+    this.fee = new Fee(chainName, wallets.wallet);
+    this.helper = new Helper(wallets.wallet);
     if (userKey) {
       this.userKey = userKey;
     } else {
@@ -63,9 +63,9 @@ export default class EthereumContract extends BaseContract {
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
-    wallet: any,
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
+    console.log(this.data)
     const [dataId, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
     const indices = new Array(Number(encryptionSchema.n)).fill(0);
     const names = new Array(Number(encryptionSchema.n)).fill('');
@@ -83,7 +83,7 @@ export default class EthereumContract extends BaseContract {
     //convert string to Uint8Array
     const encryptedData = new Uint8Array(Buffer.from(encryptDataJsonStr));
     //save it to arweave
-    const transactionId = await this.storage.submitData(encryptedData, wallet);
+    const transactionId = await this.storage.submitData(encryptedData, this.storageWallet);
     const transactionIdBytes = new Uint8Array(transactionId);
     const dataTagStr = JSON.stringify(dataTag);
     const priceInfoStr = JSON.stringify({

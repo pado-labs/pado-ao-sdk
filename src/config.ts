@@ -11,16 +11,16 @@ export const MEMORYLIMIT = '512M';
 export const DATACONTRACTADDRESSES = {
   ao: '0x0',
   ethereum: '0x0',
-  holesky: '0x0'
+  holesky: '0x8A20dD20df6191381E01F3459AAb831AbE9C98f8'
 };
 export const FEECONTRACTADDRESSES = {
   ao: '0x0',
   ethereum: '0x0',
-  holesky: '0x0'};
+  holesky: '0x303F76838D3B1A10673Fad5Af6Af0F732d0E5579'};
 export const TASKCONTRACTADDRESSES = {
   ao: '0x0',
   ethereum: '0x0',
-  holesky: '0x0'};
+  holesky: '0xf0bd9789823Ba073a1CAE2FFE90e80e012b04B59'};
 
 export const DEFAULTENCRYPTIONSCHEMA = {
   t: '2',
