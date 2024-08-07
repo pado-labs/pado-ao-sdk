@@ -21,9 +21,9 @@
     "test": "jest"
   },
   "dependencies": {
-    "@permaweb/aoconnect": "^0.0.51",
+    "@permaweb/aoconnect": "^0.0.57",
     "arseeding-js": "^0.0.31",
-    "arweave": "^1.15.0",
+    "arweave": "^1.15.1",
     "ethers": "5.7.2",
     "everpay": "^1.4.0"
   },

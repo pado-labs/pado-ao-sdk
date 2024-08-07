@@ -92,7 +92,7 @@ export default class ArweaveContract extends BaseContract {
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
     const signer = await this._getSigner(this.wallet);
-    const dataId = this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
+    const dataId = await this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }
 
@@ -125,7 +125,7 @@ export default class ArweaveContract extends BaseContract {
    *
    * @returns A promise that resolves to the ID of the submitted task.
    */
-  async submitTask(taskType: string, wallet: any, dataId: string) {
+  async submitTask(taskType: string, dataId: string) {
     let encData = await this.data.getDataById(dataId);
     encData = JSON.parse(encData);
     const exData = JSON.parse(encData.data);
@@ -141,7 +141,7 @@ export default class ArweaveContract extends BaseContract {
 
     const nodePrice = await this.fee.getComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
-    const signer = await this._getSigner(wallet);
+    const signer = await this._getSigner(this.wallet);
 
     try {
       const from = SUPPORTSYMBOLONAOFROMADDRESSMAP[symbol as keyof typeof SUPPORTSYMBOLONAOFROMADDRESSMAP];

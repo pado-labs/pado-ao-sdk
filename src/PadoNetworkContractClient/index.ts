@@ -74,8 +74,8 @@ export default class PadoNetworkContractClient {
    *
    * @returns A promise that resolves to the ID of the submitted task.
    */
-  async submitTask(taskType: string, wallet: any, dataId: string) {
-    const taskId = await this._client.submitTask(taskType, wallet, dataId);
+  async submitTask(taskType: string, dataId: string) {
+    const taskId = await this._client.submitTask(taskType, dataId);
     return taskId;
   }
 

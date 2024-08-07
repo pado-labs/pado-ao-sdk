@@ -29,7 +29,7 @@ async function main() {
 
   const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallets);
   // submit a task to AO process
-  const taskId = await padoNetworkClient.submitTask('', wallet,dataId);
+  const taskId = await padoNetworkClient.submitTask('',dataId);
   console.log(`TASKID=${taskId}`);
   // timeout is 10s
   const timeout = 10 * 1000;

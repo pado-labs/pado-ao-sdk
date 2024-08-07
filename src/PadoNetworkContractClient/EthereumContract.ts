@@ -119,7 +119,7 @@ export default class EthereumContract extends BaseContract {
    * @param dataId - The identifier of the data to be used in the task.
    * @returns {Promise<string>} - The ID of the submitted task.
    */
-  async submitTask(taskType: string, wallet: any, dataId: string) {
+  async submitTask(taskType: string, dataId: string) {
     //todo get from arweave
     let encData = await this.data.getDataById(dataId);
     const { priceInfo: priceObj, workerIds } = encData;
@@ -155,7 +155,7 @@ export default class EthereumContract extends BaseContract {
     }
     //todo save pk to storage
 
-    const pkTransactionHash = await this.storage.submitData(new Uint8Array(Buffer.from(this.userKey.pk)),wallet);
+    const pkTransactionHash = await this.storage.submitData(new Uint8Array(Buffer.from(this.userKey.pk)),this.storageWallet);
     const taskId = await this.task.submitTask(taskType, pkTransactionHash, dataId);
     return taskId;
   }
