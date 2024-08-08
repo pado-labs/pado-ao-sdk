@@ -1,12 +1,16 @@
-import { ArweaveSigner, InjectedArweaveSigner } from 'arseeding-js';
+import { ArweaveSigner, EthereumSigner, InjectedArweaveSigner, InjectedEthereumSigner } from 'arseeding-js';
 import { newEverpayByRSA, payOrder } from 'arseeding-js/cjs/payOrder';
 import { createAndSubmitItem } from 'arseeding-js/cjs/submitOrder';
 import Everpay, { ChainType } from 'everpay';
 import BaseStorage from './BaseStorage';
+import { WalletWithType } from 'types';
+import { ethers } from 'ethers';
 
 const arseedingUrl = 'https://arseed.web3infra.dev';
 const tag =
   'arweave,ethereum-ar-AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA,0x4fadc7a98f2dc96510e42dd1a74141eeae0c1543';
+const ethereumTag =
+  'ethereum-eth-0x0000000000000000000000000000000000000000';
 
 export default class ArseedingStorage extends BaseStorage {
   /**
@@ -16,16 +20,32 @@ export default class ArseedingStorage extends BaseStorage {
    * @param wallet - The wallet object used for signing transactions.
    * @returns A Promise that resolves to a string representing the item ID of the submitted data.
    */
-  async submitData(data: Uint8Array, wallet: any): Promise<string> {
+  async submitData(data: Uint8Array, wallet: WalletWithType): Promise<string> {
     let signer;
+    let provider;
+    let payTag = tag;
     if (typeof process !== 'undefined' && process.versions && process.versions.node) {
       // This is Node.js
-      signer = new ArweaveSigner(wallet);
+      if (wallet.walletType !== 'arweave') {
+        throw new Error(`Not support walletType:${wallet.walletType} in node environment!`);
+      }
+      signer = new ArweaveSigner(wallet.wallet);
     } else {
       // This is explorer
-      signer = new InjectedArweaveSigner(wallet);
+      if (wallet.walletType === 'arweave') {
+        signer = new InjectedArweaveSigner(wallet.wallet);
+        await signer.sign(data.buffer as Uint8Array);
+      } else if (wallet.walletType === 'metamask') {
+        provider = new ethers.providers.Web3Provider((window as any).ethereum);
+        signer = new InjectedEthereumSigner(provider);
+        // await provider.send("eth_requestAccounts", []);
+        // const signer = await provider.getSigner()
+        payTag = ethereumTag;
+        await signer.sign(data);
+      }else{
+        throw new Error(`Not support walletType:${wallet.walletType}!`);
+      }
       // @ts-ignore
-      await signer.sign(data.buffer);
     }
 
     const options = {
@@ -39,7 +59,7 @@ export default class ArseedingStorage extends BaseStorage {
       signer: signer,
       path: '',
       arseedUrl: arseedingUrl,
-      tag
+      tag:payTag
     };
     // @ts-ignore
     const order = await createAndSubmitItem(data.buffer, options, config);
@@ -47,28 +67,48 @@ export default class ArseedingStorage extends BaseStorage {
     //pay for order
     if (typeof process !== 'undefined' && process.versions && process.versions.node) {
       //nodejs
-      const address = await this.arweave.wallets.jwkToAddress(wallet);
-      const pay = newEverpayByRSA(wallet, address);
-      // pay
-      const everHash = await payOrder(pay, order);
-      console.log('everHash:', everHash);
-    } else {
-      //explorer
-      // TODO-ysm window.arweaveWallet why not param-wallet , or use window.arweaveWallet directly without pass wallet param?
-      const arAddress = await window.arweaveWallet.getActiveAddress();
-      let chainTyp = tag.split('-')[0];
-      if (chainTyp.indexOf(',') !== -1) {
-        chainTyp = chainTyp.split(',')[0];
+      if (wallet.walletType === 'arweave') {
+        const address = await this.arweave.wallets.jwkToAddress(wallet.wallet);
+        const pay = newEverpayByRSA(wallet.wallet, address);
+        // pay todo
+        // const everHash = await payOrder(pay, order);
+        // console.log('everHash:', everHash);
+      }else {
+        throw new Error('Not support walletType:'+wallet.walletType+' in node environment!')
       }
-      console.log('chainType', chainTyp);
-      const pay = new Everpay({
-        account: arAddress,
-        chainType: chainTyp as ChainType,
-        arJWK: 'use_wallet'
-      });
-      // pay
-      const everHash = await payOrder(pay, order);
-      console.log(everHash);
+    } else {
+      if(wallet.walletType === 'arweave') {
+        //explorer
+        // TODO-ysm window.arweaveWallet why not param-wallet , or use window.arweaveWallet directly without pass wallet param?
+        const arAddress = await window.arweaveWallet.getActiveAddress();
+        let chainTyp = tag.split('-')[0];
+        if (chainTyp.indexOf(',') !== -1) {
+          chainTyp = chainTyp.split(',')[0];
+        }
+        console.log('chainType', chainTyp);
+        const pay = new Everpay({
+          account: arAddress,
+          chainType: chainTyp as ChainType,
+          arJWK: 'use_wallet'
+        });
+        // pay
+        // const everHash = await payOrder(pay, order);
+        // console.log(everHash);
+      }else{
+        // metamask
+        if(!provider){
+          throw new Error('provider is undefined!');
+        }
+        signer = provider.getSigner();
+        const pay = new Everpay({
+          account: wallet.wallet.selectedAddress,
+          chainType: 'ethereum' as  ChainType,
+          ethConnectedSigner: signer as any
+        })
+
+        // const everHash = await payOrder(pay, order);
+        // console.log(everHash);
+      }
     }
     return order.itemId;
   }

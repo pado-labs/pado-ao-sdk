@@ -91,7 +91,7 @@ export default class ArweaveContract extends BaseContract {
     const priceInfoStr = JSON.stringify(priceInfo);
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
-    const signer = await this._getSigner(this.wallet);
+    const signer = await this._getSigner(this.wallet.wallet);
     const dataId = await this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }
@@ -141,7 +141,7 @@ export default class ArweaveContract extends BaseContract {
 
     const nodePrice = await this.fee.getComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
-    const signer = await this._getSigner(this.wallet);
+    const signer = await this._getSigner(this.wallet.wallet);
 
     try {
       const from = SUPPORTSYMBOLONAOFROMADDRESSMAP[symbol as keyof typeof SUPPORTSYMBOLONAOFROMADDRESSMAP];

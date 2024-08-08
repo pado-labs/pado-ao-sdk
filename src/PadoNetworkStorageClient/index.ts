@@ -1,4 +1,4 @@
-import { StorageType } from '../types/index';
+import { StorageType, WalletWithType } from '../types/index';
 import ArseedingStorage from './ArseedingStorage';
 import ArweaveStorage from './ArweaveStorage';
 
@@ -26,7 +26,7 @@ export default class PadoNetworkStorageClient {
    * @param wallet - An object representing the wallet used for the submission.
    * @returns A Promise that resolves to a string, typically a confirmation or response from the submission.
    */
-  async submitData(data: Uint8Array, wallet: any): Promise<string> {
+  async submitData(data: Uint8Array, wallet: WalletWithType): Promise<string> {
     const res = await this._client.submitData(data, wallet);
     return res;
   }

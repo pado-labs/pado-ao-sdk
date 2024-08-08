@@ -1,4 +1,4 @@
-import type { createTransactionParamsTuple, signParamsTuple } from '../types/index';
+import { createTransactionParamsTuple, signParamsTuple, WalletWithType } from '../types/index';
 import BaseStorage from './BaseStorage';
 
 
@@ -11,7 +11,7 @@ export default class ArweaveStorage extends BaseStorage {
    * @param wallet - The wallet object used for creating and signing the transaction; could be `window.arweave` in browser context.
    * @returns A Promise that resolves to the transaction ID once the data has been successfully submitted.
    */
-  async submitData(data: Uint8Array, wallet: any): Promise<string> {
+  async submitData(data: Uint8Array, wallet: WalletWithType): Promise<string> {
     let createTransactionParams: createTransactionParamsTuple = [
       {
         data
@@ -20,8 +20,8 @@ export default class ArweaveStorage extends BaseStorage {
     let signParams: signParamsTuple = [undefined];
     if (typeof process !== 'undefined' && process.versions && process.versions.node) {
       // This is Node.js
-      createTransactionParams[1] = wallet;
-      signParams[1] = wallet;
+      createTransactionParams[1] = wallet.wallet;
+      signParams[1] = wallet.wallet;
     }
     // Create a data transaction
     let transaction = await this.arweave.createTransaction(...createTransactionParams);

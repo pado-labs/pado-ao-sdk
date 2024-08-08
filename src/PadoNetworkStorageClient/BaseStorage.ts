@@ -1,8 +1,9 @@
 import Arweave from 'arweave';
+import { WalletWithType } from 'types';
 
 interface IBaseStorage {
   arweave: Arweave;
-  submitData(data: string | Uint8Array | ArrayBuffer, wallet: any): Promise<string>;
+  submitData(data: string | Uint8Array | ArrayBuffer, wallet: WalletWithType): Promise<string>;
   getData(transactionId: string): Promise<Uint8Array>;
 }
 
@@ -17,7 +18,7 @@ export default class BaseStorage implements IBaseStorage {
   constructor() {
     this.arweave = Arweave.init(ARConfig);
   }
-  async submitData(data: Uint8Array, wallet: any): Promise<string> {
+  async submitData(data: Uint8Array, wallet: WalletWithType): Promise<string> {
     console.log(data,wallet);
     return Promise.resolve('');
   }

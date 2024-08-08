@@ -13,6 +13,11 @@ export default class PadoNetworkContractClient {
   private _storageType: StorageType;
 
   constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
+    if (chainName === 'holesky' || chainName === 'ethereum') {
+        if(wallets.wallet.walletType !=='metamask' || wallets.storageWallet.walletType !=='metamask'){
+          throw new Error(`Not support wallet:${wallets.wallet.walletType} for ${chainName}`);
+        }
+    }
     if (userKey) {
       this._client = new ContractClient[chainName](chainName, storageType, wallets, userKey);
     } else {

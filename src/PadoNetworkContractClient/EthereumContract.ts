@@ -26,11 +26,11 @@ export default class EthereumContract extends BaseContract {
 
   constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
     super(chainName, storageType, wallets);
-    this.worker = new Worker(chainName, wallets.wallet);
-    this.data = new Data(chainName, wallets.wallet);
-    this.task = new Task(chainName, wallets.wallet);
-    this.fee = new Fee(chainName, wallets.wallet);
-    this.helper = new Helper(wallets.wallet);
+    this.worker = new Worker(chainName, wallets.wallet.wallet);
+    this.data = new Data(chainName, wallets.wallet.wallet);
+    this.task = new Task(chainName, wallets.wallet.wallet);
+    this.fee = new Fee(chainName, wallets.wallet.wallet);
+    this.helper = new Helper(wallets.wallet.wallet);
     if (userKey) {
       this.userKey = userKey;
     } else {

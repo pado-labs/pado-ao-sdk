@@ -150,7 +150,12 @@ export type Task = {
 }
 
 export type Wallets = {
+  wallet: WalletWithType;
+  storageWallet: WalletWithType;
+}
+
+export type WalletWithType = {
   wallet: any;
-  storageWallet: any;
+  walletType: 'metamask'|'arweave'
 }
 
