@@ -3,17 +3,19 @@ import Fee from '../contracts/EVM/Fee';
 import Helper from '../contracts/EVM/Helper';
 import Task from '../contracts/EVM/Task';
 import Worker from '../contracts/EVM/Worker';
-import { DEFAULTENCRYPTIONSCHEMA } from '../config';
+import { DEFAULTENCRYPTIONSCHEMA, PADO_NETWORK_CONTRACT_ADDRESS } from '../config';
 import {
-  KeyInfo,
-  StorageType,
+  ChainName,
   type CommonObject,
   type EncryptionSchema,
   type FeeTokenInfo,
-  type PriceInfo, Wallets
+  KeyInfo,
+  type PriceInfo,
+  StorageType,
+  Wallets
 } from '../types/index';
 import BaseContract from './BaseContract';
-import { ChainName } from '../types/index';
+import { ethers } from 'ethers';
 
 
 export default class EthereumContract extends BaseContract {
@@ -26,10 +28,11 @@ export default class EthereumContract extends BaseContract {
 
   constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
     super(chainName, storageType, wallets);
-    this.worker = new Worker(chainName, wallets.wallet.wallet);
-    this.data = new Data(chainName, wallets.wallet.wallet);
-    this.task = new Task(chainName, wallets.wallet.wallet);
-    this.fee = new Fee(chainName, wallets.wallet.wallet);
+    const addresses = PADO_NETWORK_CONTRACT_ADDRESS[chainName]
+    this.worker = new Worker(chainName, wallets.wallet.wallet,(addresses as any).workerMgt);
+    this.data = new Data(chainName, wallets.wallet.wallet,(addresses as any).dataMgt);
+    this.task = new Task(chainName, wallets.wallet.wallet,(addresses as any).taskMgt);
+    this.fee = new Fee(chainName, wallets.wallet.wallet,(addresses as any).feeMgt);
     this.helper = new Helper(wallets.wallet.wallet);
     if (userKey) {
       this.userKey = userKey;
@@ -65,29 +68,84 @@ export default class EthereumContract extends BaseContract {
     priceInfo: PriceInfo,
     encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
   ) {
-    console.log(this.data)
-    const [dataId, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
-    const indices = new Array(Number(encryptionSchema.n)).fill(0);
+
+    const tx = await this.data.prepareRegistry(encryptionSchema);
+    const receipt = await tx.wait();
+    console.log(receipt)
+    const event = receipt.events.find((event: { event: any; })  => event.event === 'DataPrepareRegistry');
+    if(!event){
+      throw new Error('prepareRegistry failed')
+    }
+    const dataId = event.args.dataId;
+    const publicKeys = event.args.publicKeys;
+    const indices = [];
     const names = new Array(Number(encryptionSchema.n)).fill('');
+
+    //get publickeys
+    const rawPublickeys = [];
+    for (let i = 0; i < publicKeys.length; i++) {
+      const rawPk = await this.storage.getData(this.hexToString(publicKeys[i]))
+      rawPublickeys.push(Buffer.from(rawPk).toString('hex'))
+      indices.push(i+1)
+    }
     const policy = {
       t: Number(encryptionSchema.t),
       n: Number(encryptionSchema.n),
       indices,
       names
     };
-    const encryptData = this.encrypt_v2(publicKeys,data, policy);
+    console.log('rawPublickeys',rawPublickeys)
+    console.log('policy',policy)
+    const data1 = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
+    const encryptData = this.encrypt_v2(rawPublickeys,data1, policy);
+
+
     //save it to arweave
     const transactionId = await this.storage.submitData(encryptData, this.storageWallet);
-    const transactionIdBytes = new Uint8Array(transactionId);
+    const transactionIdBytes = '0x'+Buffer.from(this.stringToUint8Array(transactionId)).toString('hex');
     const dataTagStr = JSON.stringify(dataTag);
-    const priceInfoStr = JSON.stringify({
-      tokenSymbol: priceInfo.symbol,
+    const priceInfoStr = {
+      tokenSymbol: 'ETH',
       price: priceInfo.price // TODO-ysm bigint
-    });
-
-    const newDataId = await this.data.register(dataId, dataTagStr, priceInfoStr, transactionIdBytes);
+    };
+    console.log(`dataId:${dataId}`)
+    console.log(`dataTagStr :${dataTagStr}`)
+    console.log(`priceInfoStr:${priceInfoStr}`)
+    console.log(`transactionIdBytes:${transactionIdBytes}`)
+    const registryTx = await this.data.register(dataId, dataTag, priceInfoStr, transactionIdBytes);
+    const registryReceipt = await registryTx.wait();
+    const registryEvent = registryReceipt.events.find((event: { event: any; })  => event.event === 'DataRegistered');
+    if(!registryEvent){
+      throw new Error('data register failed')
+    }
+    const newDataId = registryEvent.args.dataId;
     return newDataId;
   }
+
+
+  stringToUint8Array(str: string) {
+    var arr = [];
+    for (var i = 0, j = str.length; i < j; ++i) {
+      arr.push(str.charCodeAt(i));
+    }
+
+    var data = new Uint8Array(arr);
+    return data
+  }
+
+  hexToString = (hex:any)=>{
+    hex = hex.startsWith('0x') ? hex.slice(2) : hex;
+
+    const byteArray = new Uint8Array(hex.length / 2);
+    for (let i = 0; i < hex.length; i += 2) {
+      byteArray[i / 2] = parseInt(hex.slice(i, i + 2), 16);
+    }
+
+    const decoder = new TextDecoder();
+    return decoder.decode(byteArray);
+  }
+
+
 
   /**
    * Asynchronously retrieves a list of data based on the specified status.
@@ -119,11 +177,12 @@ export default class EthereumContract extends BaseContract {
    * @param dataId - The identifier of the data to be used in the task.
    * @returns {Promise<string>} - The ID of the submitted task.
    */
-  async submitTask(taskType: string, dataId: string) {
+  async submitTask(taskType: number, dataId: string) {
     //todo get from arweave
     let encData = await this.data.getDataById(dataId);
     const { priceInfo: priceObj, workerIds } = encData;
     const { tokenSymbol: symbol, price: dataPrice } = priceObj;
+    debugger
     const isSupported = await this.fee.isSupportToken(symbol);
     if (!isSupported) {
       const supportTokens = await this.fee.getFeeTokens();
@@ -132,54 +191,60 @@ export default class EthereumContract extends BaseContract {
     }
     //get node price
 
-    // const { computingPrice: nodePrice } = await this.fee.getFeeTokenBySymbol(symbol);
-    // const totalPrice = Number(dataPrice) + Number(nodePrice) * workerIds.length;
-    //
-    // try {
-    //   if (symbol === 'ETH') {
-    //     const from = 'taskContractAddress';
-    //     // TODO-ysm format amount
-    //     await this.helper.transferETH(from, totalPrice);
-    //   }
-    // } catch (err) {
-    //   if (err === 'Insufficient Balance!') {
-    //     throw new Error(
-    //       'Insufficient Balance! Please ensure that your wallet balance is greater than ' + totalPrice + symbol
-    //     );
-    //   } else {
-    //     throw err;
-    //   }
-    // }
+    const { computingPrice: nodePrice } = await this.fee.getFeeTokenBySymbol(symbol);
+    const totalPrice = Number(dataPrice) + Number(nodePrice) * workerIds.length;
+
     if (!this.userKey) {
       throw Error('Please set user key!');
     }
-    //todo save pk to storage
-
-    const pkTransactionHash = await this.storage.submitData(new Uint8Array(Buffer.from(this.userKey.pk)),this.storageWallet);
-    const taskId = await this.task.submitTask(taskType, pkTransactionHash, dataId);
-    return taskId;
+    console.log(`Buffer.from(this.userKey.pk,'hex'):${Buffer.from(this.userKey.pk,'hex')}`)
+    const pkTransactionHash = await this.storage.submitData(new Uint8Array(Buffer.from(this.userKey.pk,'hex')),this.storageWallet);
+    const pkTransactionHashBytes = ethers.utils.hexlify(this.stringToUint8Array(pkTransactionHash));
+    const tx = await this.task.submitTask(taskType, pkTransactionHashBytes, dataId,totalPrice);
+    const receipt = await tx.wait();
+    console.log(receipt)
+    const event = receipt.events.find((event: { event: any; })  => event.event === 'TaskDispatched');
+    if(!event){
+      throw new Error('submitTask failed')
+    }
+    return event.args.taskId;
   }
 
 
   async getTaskResult(taskId: string, timeout: number = 10000): Promise<Uint8Array> {
     const task = await this.task.getCompletedTaskById(taskId);
 
-    let encData = await this.data.getDataById(task.dataId);
-    encData = JSON.parse(encData);
-    let exData = JSON.parse(encData.data);
+    let dataFromContract = await this.data.getDataById(task.dataId);
+    const itemIdForArSeeding = this.hexToString(dataFromContract.dataContent);
+    console.log(`itemIdForArSeeding:${itemIdForArSeeding}`)
+    const encData = await this.storage.getData(itemIdForArSeeding);
+    // dataFromContract = JSON.parse(dataFromContract);
+    // let exData = JSON.parse(dataFromContract.data);
 
-    const { encryptionSchema, workerIds, dataContent } = encData;
-    let uint8Array = new Uint8Array(dataContent);
-    let decoder = new TextDecoder('utf-8');
-    let transactionId = decoder.decode(uint8Array);
-    let encMsg = await this.storage.getData(transactionId);
-    const chosenIndices = new Array(Number(encryptionSchema.n)).fill(0);
-    const reencChosenSks = new Array(Number(encryptionSchema.n)).fill('');
+    const { encryptionSchema, workerIds, dataContent } = dataFromContract;
+    // let uint8Array = new Uint8Array(dataContent);
+    // let decoder = new TextDecoder('utf-8');
+    // let transactionId = decoder.decode(uint8Array);
+    // let encMsg = await this.storage.getData(this.hexToString(dataContent));
+    const chosenIndices = [];
+
+    const reencChosenSks = [];
+    for (let i = 0; i < task.computingInfo.results.length; i++) {
+      if(task.computingInfo.results[i].length===0){
+        continue;
+      }
+      const dataItemId = this.hexToString(task.computingInfo.results[i])
+      reencChosenSks.push(Buffer.from(await this.storage.getData(dataItemId)).toString('hex'));
+      chosenIndices.push(i+1);
+    }
+
 
     if (!this.userKey) {
       throw Error('Please set user key!');
     }
-    const res = this.decrypt(reencChosenSks, this.userKey.sk, exData.nonce, encMsg, chosenIndices);
-    return new Uint8Array(res.msg);
+    console.log(`reencChosenSks:${reencChosenSks}`)
+    console.log(`encData:${encData}`)
+    console.log(`chosenIndices:${chosenIndices}`)
+    return this.decrypt_v2(reencChosenSks, this.userKey.sk, encData, chosenIndices);
   }
 }

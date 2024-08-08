@@ -8,19 +8,37 @@ export const TASKTYPE = 'ZKLHEDataSharing';
 export const COMPUTELIMIT = '9000000000000';
 export const MEMORYLIMIT = '512M';
 
+
+export const PADO_NETWORK_CONTRACT_ADDRESS={
+  ao:{},
+  ethereum: {
+    dataMgt:'',
+    feeMgt:'',
+    taskMgt:'',
+    workerMgt:''
+  },
+  holesky: {
+    dataMgt:'0x4C5A3707578b1481bf60CC75177d13B9b7998D19',
+    feeMgt:'0x1b6dc34B40743Ac59178a6114C73796111f77E79',
+    taskMgt:'0x26A9B77CA4f230dD7292f8e1159D979006094c9F',
+    workerMgt:'0x33387A204E8bD02ac2309a35aAa46dFd33148F00'
+  }
+}
+
+
 export const DATACONTRACTADDRESSES = {
   ao: '0x0',
   ethereum: '0x0',
-  holesky: '0x8A20dD20df6191381E01F3459AAb831AbE9C98f8'
+  holesky: '0x41Cd32758A3fFc04565047D4AF1248DE455c705F'
 };
 export const FEECONTRACTADDRESSES = {
   ao: '0x0',
   ethereum: '0x0',
-  holesky: '0x303F76838D3B1A10673Fad5Af6Af0F732d0E5579'};
+  holesky: '0x1EbAC1C782Aa9f611daAE19CE77effB8fe8913bD'};
 export const TASKCONTRACTADDRESSES = {
   ao: '0x0',
   ethereum: '0x0',
-  holesky: '0xf0bd9789823Ba073a1CAE2FFE90e80e012b04B59'};
+  holesky: '0x00430BF32B6799E58C48C6a5be5DF9fef7D314ED'};
 
 export const DEFAULTENCRYPTIONSCHEMA = {
   t: '2',

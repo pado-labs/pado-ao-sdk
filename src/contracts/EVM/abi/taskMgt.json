@@ -10,7 +10,7 @@
   },
   {
     "type": "function",
-    "name": "_dataMgt",
+    "name": "dataMgt",
     "inputs": [],
     "outputs": [
       {
@@ -23,39 +23,13 @@
   },
   {
     "type": "function",
-    "name": "_feeMgt",
+    "name": "feeMgt",
     "inputs": [],
     "outputs": [
       {
         "name": "",
         "type": "address",
         "internalType": "contract IFeeMgt"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "_taskCount",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "uint256",
-        "internalType": "uint256"
-      }
-    ],
-    "stateMutability": "view"
-  },
-  {
-    "type": "function",
-    "name": "_workerMgt",
-    "inputs": [],
-    "outputs": [
-      {
-        "name": "",
-        "type": "address",
-        "internalType": "contract IWorkerMgt"
       }
     ],
     "stateMutability": "view"
@@ -446,22 +420,46 @@
   },
   {
     "type": "function",
+    "name": "getTaskReportStatus",
+    "inputs": [
+      {
+        "name": "taskId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum TaskReportStatus"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "initialize",
     "inputs": [
       {
-        "name": "dataMgt",
+        "name": "_dataMgt",
         "type": "address",
         "internalType": "contract IDataMgt"
       },
       {
-        "name": "feeMgt",
+        "name": "_feeMgt",
         "type": "address",
         "internalType": "contract IFeeMgt"
       },
       {
-        "name": "workerMgt",
+        "name": "_workerMgt",
         "type": "address",
         "internalType": "contract IWorkerMgt"
+      },
+      {
+        "name": "contractOwner",
+        "type": "address",
+        "internalType": "address"
       }
     ],
     "outputs": [],
@@ -579,84 +577,6 @@
         "internalType": "bytes"
       },
       {
-        "name": "tokenSymbol",
-        "type": "string",
-        "internalType": "string"
-      },
-      {
-        "name": "dataInfoRequest",
-        "type": "tuple",
-        "internalType": "struct TaskDataInfoRequest",
-        "components": [
-          {
-            "name": "price",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "dataDescription",
-            "type": "string",
-            "internalType": "string"
-          },
-          {
-            "name": "dataInputAmount",
-            "type": "uint32",
-            "internalType": "uint32"
-          }
-        ]
-      },
-      {
-        "name": "computingInfoRequest",
-        "type": "tuple",
-        "internalType": "struct ComputingInfoRequest",
-        "components": [
-          {
-            "name": "price",
-            "type": "uint256",
-            "internalType": "uint256"
-          },
-          {
-            "name": "t",
-            "type": "uint32",
-            "internalType": "uint32"
-          },
-          {
-            "name": "n",
-            "type": "uint32",
-            "internalType": "uint32"
-          }
-        ]
-      },
-      {
-        "name": "code",
-        "type": "bytes",
-        "internalType": "bytes"
-      }
-    ],
-    "outputs": [
-      {
-        "name": "",
-        "type": "bytes32",
-        "internalType": "bytes32"
-      }
-    ],
-    "stateMutability": "payable"
-  },
-  {
-    "type": "function",
-    "name": "submitTask",
-    "inputs": [
-      {
-        "name": "taskType",
-        "type": "uint8",
-        "internalType": "enum TaskType"
-      },
-      {
-        "name": "consumerPk",
-        "type": "bytes",
-        "internalType": "bytes"
-      },
-      {
         "name": "dataId",
         "type": "bytes32",
         "internalType": "bytes32"
@@ -697,6 +617,32 @@
   },
   {
     "type": "function",
+    "name": "taskCount",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint256",
+        "internalType": "uint256"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
+    "name": "taskTimeout",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "type": "function",
     "name": "transferOwnership",
     "inputs": [
       {
@@ -707,6 +653,51 @@
     ],
     "outputs": [],
     "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateTask",
+    "inputs": [
+      {
+        "name": "taskId",
+        "type": "bytes32",
+        "internalType": "bytes32"
+      }
+    ],
+    "outputs": [
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum TaskStatus"
+      }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "updateTaskReportTimeout",
+    "inputs": [
+      {
+        "name": "timeout",
+        "type": "uint64",
+        "internalType": "uint64"
+      }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "type": "function",
+    "name": "workerMgt",
+    "inputs": [],
+    "outputs": [
+      {
+        "name": "",
+        "type": "address",
+        "internalType": "contract IWorkerMgt"
+      }
+    ],
+    "stateMutability": "view"
   },
   {
     "type": "event",
@@ -787,6 +778,32 @@
         "type": "bytes32[]",
         "indexed": false,
         "internalType": "bytes32[]"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TaskFailed",
+    "inputs": [
+      {
+        "name": "taskId",
+        "type": "bytes32",
+        "indexed": true,
+        "internalType": "bytes32"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "type": "event",
+    "name": "TaskReportTimeoutUpdated",
+    "inputs": [
+      {
+        "name": "timeout",
+        "type": "uint64",
+        "indexed": false,
+        "internalType": "uint64"
       }
     ],
     "anonymous": false

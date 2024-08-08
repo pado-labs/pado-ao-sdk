@@ -14,8 +14,8 @@ import BaseEVM from './BaseEVM';
 
 
 export default class Data extends BaseEVM {
-  constructor(chainName: ChainName, wallet: any) {
-    super(chainName, wallet);
+  constructor(chainName: ChainName, wallet: any, address: string) {
+    super(chainName, wallet,address);
     this._initContractInstance(abiJson);
   }
   /**
