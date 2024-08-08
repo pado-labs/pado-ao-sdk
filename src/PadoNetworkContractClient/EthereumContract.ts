@@ -96,8 +96,7 @@ export default class EthereumContract extends BaseContract {
     };
     console.log('rawPublickeys',rawPublickeys)
     console.log('policy',policy)
-    const data1 = new Uint8Array([1, 2, 3, 4, 5, 6, 7, 8]);
-    const encryptData = this.encrypt_v2(rawPublickeys,data1, policy);
+    const encryptData = this.encrypt_v2(rawPublickeys,data, policy);
 
 
     //save it to arweave
