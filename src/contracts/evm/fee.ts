@@ -1,17 +1,19 @@
 import type { Address, Allowance, Bytes32, FeeTokenInfo, Uint256 } from '../../types/index';
-import BaseEVM from './BaseEVM';
+import BaseEvm from './base-evm';
 import {ChainName} from '../../types/index';
+import abiJson from './abi/feeMgt.json';
 
-export default class Fee extends BaseEVM {
+export default class Fee extends BaseEvm {
   
   feeTokens: FeeTokenInfo[] ;
   /**
    * @param chainName The name of the chain, used to identify and differentiate between different chains.
    * @param provider The provider object for the blockchain, used to establish and manage the connection with the blockchain.
    */
-  constructor(chainName: ChainName, provider: any = (window as any).ethereum) {
-    super(chainName,provider);
+  constructor(chainName: ChainName, provider: any = (window as any).ethereum, address: string) {
+    super(chainName,provider,address);
     this.feeTokens = [];
+    this._initContractInstance(abiJson);
   }
 
   /**

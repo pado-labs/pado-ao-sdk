@@ -1,15 +1,15 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
-import { AOData } from '../contracts/AO/AOData';
-import { AOFee } from '../contracts/AO/AOFee';
-import Helper from '../contracts/AO/Helper';
-import { AOTask } from '../contracts/AO/AOTask';
-import { AOWorker } from '../contracts/AO/AOWorker';
+import { AoData } from '../contracts/ao/ao-data';
+import { AoFee } from '../contracts/ao/ao-fee';
+import Helper from '../contracts/ao/helper';
+import { AoTask } from '../contracts/ao/ao-task';
+import { AoWorker } from '../contracts/ao/ao-worker';
 import {
-  COMPUTELIMIT,
-  DEFAULTENCRYPTIONSCHEMA,
-  MEMORYLIMIT,
-  SUPPORTSYMBOLONAOFROMADDRESSMAP,
-  SUPPORTSYMBOLSONAO,
+  COMPUTE_LIMIT,
+  DEFAULT_ENCRYPTION_SCHEMA,
+  MEMORY_LIMIT,
+  SUPPORT_SYMBOL_ON_AO_FROM_ADDRESS_MAP,
+  SUPPORT_SYMBOLS_ON_AO,
   TASKS_PROCESS_ID
 } from '../config';
 import {
@@ -20,7 +20,7 @@ import {
   type PriceInfo,
   Wallets
 } from '../types/index';
-import BaseContract from './BaseContract';
+import BaseContract from './base-contract';
 import { ChainName } from '../types/index';
 
 
@@ -34,10 +34,10 @@ export default class ArweaveContract extends BaseContract {
 
   constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
     super(chainName, storageType, wallets);
-    this.worker = new AOWorker();
-    this.data = new AOData();
-    this.task = new AOTask();
-    this.fee = new AOFee();
+    this.worker = new AoWorker();
+    this.data = new AoData();
+    this.task = new AoTask();
+    this.fee = new AoFee();
     this.helper = new Helper();
     if (userKey) {
       this.userKey = userKey;
@@ -58,7 +58,7 @@ export default class ArweaveContract extends BaseContract {
    *
    * @param data - plain data need to encrypt and upload
    * @param dataTag - the data meta info object
-   * @param priceInfo - The data price symbol(symbol is optional, default is wAR) and price. Currently only wAR(the Wrapped AR in AO) is supported, with a minimum price unit of 1 (1 means 0.000000000001 wAR).
+   * @param priceInfo - The data price symbol(symbol is optional, default is wAR) and price. Currently only wAR(the Wrapped AR in ao) is supported, with a minimum price unit of 1 (1 means 0.000000000001 wAR).
    * @param wallet - The ar wallet json object, this wallet must have AR Token. Pass `window.arweaveWallet` in a browser
    * @param encryptionSchema EncryptionSchema
    * @param extParam - The extParam object, which can be used to pass additional parameters to the upload process
@@ -71,14 +71,14 @@ export default class ArweaveContract extends BaseContract {
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
-    encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
+    encryptionSchema: EncryptionSchema = DEFAULT_ENCRYPTION_SCHEMA
   ) {
     const [policy, publicKeys] = await this.data.prepareRegistry(encryptionSchema);
     const encryptData = this.encryptData(data, policy, publicKeys);
     // if (!encryptedData) {
     //   throw new Error('The encrypted Data to be uploaded can not be empty');
     // }
-    let transactionId = await this.storage.submitData(encryptData.enc_msg, this.storageWallet);
+    let transactionId = await this.storage.submitData(encryptData.enc_msg);
     dataTag['storageType'] = this.storage.StorageType;
 
     const txData = {
@@ -91,8 +91,8 @@ export default class ArweaveContract extends BaseContract {
     const priceInfoStr = JSON.stringify(priceInfo);
     const txDataStr = JSON.stringify(txData);
     const computeNodes = policy.names;
-    const signer = await this._getSigner(this.wallet);
-    const dataId = this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
+    const signer = await this._getSigner(this.wallet.wallet);
+    const dataId = await this.data.register(dataTagStr, priceInfoStr, txDataStr, computeNodes, signer);
     return dataId;
   }
 
@@ -125,7 +125,7 @@ export default class ArweaveContract extends BaseContract {
    *
    * @returns A promise that resolves to the ID of the submitted task.
    */
-  async submitTask(taskType: string, wallet: any, dataId: string) {
+  async submitTask(taskType: string, dataId: string) {
     let encData = await this.data.getDataById(dataId);
     encData = JSON.parse(encData);
     const exData = JSON.parse(encData.data);
@@ -133,18 +133,18 @@ export default class ArweaveContract extends BaseContract {
     const priceObj = JSON.parse(encData.price);
     const symbol = priceObj.symbol;
 
-    if (!SUPPORTSYMBOLSONAO.includes(symbol)) {
-      throw new Error(`Only support ${SUPPORTSYMBOLSONAO.join('/')} now!`);
+    if (!SUPPORT_SYMBOLS_ON_AO.includes(symbol)) {
+      throw new Error(`Only support ${SUPPORT_SYMBOLS_ON_AO.join('/')} now!`);
     }
     const dataPrice = priceObj.price;
     //get node price
 
     const nodePrice = await this.fee.getComputationPrice(symbol);
     const totalPrice = Number(dataPrice) + Number(nodePrice) * nodeNames.length;
-    const signer = await this._getSigner(wallet);
+    const signer = await this._getSigner(this.wallet.wallet);
 
     try {
-      const from = SUPPORTSYMBOLONAOFROMADDRESSMAP[symbol as keyof typeof SUPPORTSYMBOLONAOFROMADDRESSMAP];
+      const from = SUPPORT_SYMBOL_ON_AO_FROM_ADDRESS_MAP[symbol as keyof typeof SUPPORT_SYMBOL_ON_AO_FROM_ADDRESS_MAP];
       await this.helper.transfer(from, TASKS_PROCESS_ID, totalPrice.toString(), signer);
     } catch (err) {
       if (err === 'Insufficient Balance!') {
@@ -164,8 +164,8 @@ export default class ArweaveContract extends BaseContract {
       taskType,
       dataId as string,
       JSON.stringify(inputData),
-      COMPUTELIMIT,
-      MEMORYLIMIT,
+      COMPUTE_LIMIT,
+      MEMORY_LIMIT,
       nodeNames,
       signer
     );

@@ -2,7 +2,7 @@ import { dryrun, message, result } from '@permaweb/aoconnect';
 import { TASKS_PROCESS_ID } from '../../config';
 import { getMessageResultData } from './util/utils';
 
-export class AOTask {
+export class AoTask {
   constructor() {}
   /**
    * Asynchronously submits a task to the system.

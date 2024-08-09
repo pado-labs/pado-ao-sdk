@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
-import { DATACONTRACTADDRESSES } from '../../config';
 import type { ChainName } from '../../types/index';
 
 
-export default class BaseEVM {
+export default class BaseEvm {
   contractInstance: any;
   contractAddress: string;
   wallet: any;
@@ -11,8 +10,8 @@ export default class BaseEVM {
    * @param chainName The name of the chain, used to identify and differentiate between different chains.
    * @param provider The provider object for the blockchain, used to establish and manage the connection with the blockchain.
    */
-  constructor(chainName: ChainName, wallet: any) {
-    this.contractAddress = DATACONTRACTADDRESSES[chainName];
+  constructor(chainName: ChainName, wallet: any, address: string) {
+    this.contractAddress = address;
     this.wallet = wallet;
   }
 

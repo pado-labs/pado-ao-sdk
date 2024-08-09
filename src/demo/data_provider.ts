@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { exit } from 'node:process';
 import './proxy.js';
-import PadoNetworkContractClient from '../PadoNetworkContractClient';
+import PadoNetworkContractClient from '../pado-network-contract-client';
 import { StorageType,ChainName } from '../types/index';
-import Utils from '../Common/Utils';
+import Utils from 'common/utils';
 
 /**
  * Usage:

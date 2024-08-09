@@ -1,7 +1,16 @@
-import { ChainName, CommonObject, EncryptionSchema, KeyInfo, PriceInfo, StorageType, Wallets } from '../types/index';
-import ArweaveContract from './ArweaveContract';
-import EthereumContract from './EthereumContract';
-import { DEFAULTENCRYPTIONSCHEMA } from '../config';
+import {
+  ChainName,
+  CommonObject,
+  EncryptionSchema,
+  KeyInfo,
+  PriceInfo,
+  StorageType,
+  Wallets,
+  WalletWithType
+} from '../types/index';
+import ArweaveContract from './arweave-contract';
+import EthereumContract from './ethereum-contract';
+import { DEFAULT_ENCRYPTION_SCHEMA } from '../config';
 
 const ContractClient = {
   ao: ArweaveContract,
@@ -12,7 +21,22 @@ export default class PadoNetworkContractClient {
   private _client: any;
   private _storageType: StorageType;
 
-  constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
+  constructor(chainName: ChainName, storageType: StorageType, wallet: any, userKey?: KeyInfo) {
+    let walletType = 'arweave';
+    if (chainName === 'holesky' || chainName === 'ethereum') {
+      walletType = 'metamask';
+    }
+    let wallets:any = {};
+    const walletInfo: WalletWithType = {
+      wallet: wallet,
+      walletType: walletType as any
+    };
+    const storageWalletInfo: WalletWithType = {
+      wallet: wallet,
+      walletType: walletType as any
+    };
+    wallets.wallet = walletInfo;
+    wallets.storageWallet = storageWalletInfo;
     if (userKey) {
       this._client = new ContractClient[chainName](chainName, storageType, wallets, userKey);
     } else {
@@ -26,7 +50,7 @@ export default class PadoNetworkContractClient {
    *
    * @param data - plain data need to encrypt and upload
    * @param dataTag - the data meta info object
-   * @param priceInfo - The data price symbol(symbol is optional, default is wAR) and price. Currently only wAR(the Wrapped AR in AO) is supported, with a minimum price unit of 1 (1 means 0.000000000001 wAR).
+   * @param priceInfo - The data price symbol(symbol is optional, default is wAR) and price. Currently only wAR(the Wrapped AR in ao) is supported, with a minimum price unit of 1 (1 means 0.000000000001 wAR).
    * @param wallet - The ar wallet json object, this wallet must have AR Token. Pass `window.arweaveWallet` in a browser
    * @param encryptionSchema EncryptionSchema
    * @param extParam - The extParam object, which can be used to pass additional parameters to the upload process
@@ -39,7 +63,7 @@ export default class PadoNetworkContractClient {
     data: Uint8Array,
     dataTag: CommonObject,
     priceInfo: PriceInfo,
-    encryptionSchema: EncryptionSchema = DEFAULTENCRYPTIONSCHEMA
+    encryptionSchema: EncryptionSchema = DEFAULT_ENCRYPTION_SCHEMA
   ) {
     const dataId = this._client.uploadData(data, dataTag, priceInfo, encryptionSchema);
     return dataId;
@@ -74,8 +98,8 @@ export default class PadoNetworkContractClient {
    *
    * @returns A promise that resolves to the ID of the submitted task.
    */
-  async submitTask(taskType: string, wallet: any, dataId: string) {
-    const taskId = await this._client.submitTask(taskType, wallet, dataId);
+  async submitTask(taskType: string, dataId: string) {
+    const taskId = await this._client.submitTask(taskType, dataId);
     return taskId;
   }
 

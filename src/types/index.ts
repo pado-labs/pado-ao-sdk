@@ -150,7 +150,20 @@ export type Task = {
 }
 
 export type Wallets = {
+  wallet: WalletWithType;
+  storageWallet: WalletWithType;
+}
+
+export type WalletWithType = {
   wallet: any;
-  storageWallet: any;
+  walletType: 'metamask'|'arweave'
+}
+
+export type SupportedSymbols = 'AOCRED' | 'wAR' | 'AR' | 'ETH';
+
+
+export type ArseedingTagInfo = {
+  tag: string,
+  chainType: string
 }
 

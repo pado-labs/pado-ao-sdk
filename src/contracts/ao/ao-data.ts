@@ -1,10 +1,10 @@
 import { dryrun, message, result } from '@permaweb/aoconnect';
-import { DATAREGISTRY_PROCESS_ID } from '../../config';
+import { DATA_REGISTRY_PROCESS_ID } from '../../config';
 import { type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../types/index';
 import { getMessageResultData } from './util/utils';
-import { AOWorker as Worker } from './AOWorker';
+import { AoWorker as Worker } from './ao-worker';
 
-export class AOData {
+export class AoData {
   contractInstance: any;
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.
@@ -30,7 +30,7 @@ export class AOData {
    */
   async register(dataTag: string, price: string, exData: string, computeNodes: string[], signer: any) {
     const msgId = await message({
-      process: DATAREGISTRY_PROCESS_ID,
+      process: DATA_REGISTRY_PROCESS_ID,
       tags: [
         { name: 'Action', value: 'Register' },
         { name: 'DataTag', value: dataTag },
@@ -43,7 +43,7 @@ export class AOData {
 
     let Result = await result({
       message: msgId,
-      process: DATAREGISTRY_PROCESS_ID
+      process: DATA_REGISTRY_PROCESS_ID
     });
 
     const res = getMessageResultData(Result);
@@ -58,7 +58,7 @@ export class AOData {
    */
   async allData(dataStatus: string = 'Valid') {
     let { Messages } = await dryrun({
-      process: DATAREGISTRY_PROCESS_ID,
+      process: DATA_REGISTRY_PROCESS_ID,
       tags: [
         { name: 'Action', value: 'AllData' },
         { name: 'DataStatus', value: dataStatus }
@@ -79,7 +79,7 @@ export class AOData {
    */
   async getDataById(dataId: string) {
     let { Messages } = await dryrun({
-      process: DATAREGISTRY_PROCESS_ID,
+      process: DATA_REGISTRY_PROCESS_ID,
       tags: [
         { name: 'Action', value: 'GetDataById' },
         { name: 'DataId', value: dataId }

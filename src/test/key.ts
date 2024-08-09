@@ -1,4 +1,4 @@
-// import { generateKey } from '../Common/Utils';
+// import { generateKey } from '../common/Utils';
 //
 // const test = async() => {
 //   const key = await generateKey();
