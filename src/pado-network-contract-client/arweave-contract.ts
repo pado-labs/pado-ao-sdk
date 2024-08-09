@@ -1,9 +1,9 @@
 import { createDataItemSigner } from '@permaweb/aoconnect';
-import { AOData } from '../contracts/ao/AOData';
-import { AOFee } from '../contracts/ao/AOFee';
-import Helper from '../contracts/ao/Helper';
-import { AOTask } from '../contracts/ao/AOTask';
-import { AOWorker } from '../contracts/ao/AOWorker';
+import { AoData } from '../contracts/ao/ao-data';
+import { AoFee } from '../contracts/ao/ao-fee';
+import Helper from '../contracts/ao/helper';
+import { AoTask } from '../contracts/ao/ao-task';
+import { AoWorker } from '../contracts/ao/ao-worker';
 import {
   COMPUTE_LIMIT,
   DEFAULT_ENCRYPTION_SCHEMA,
@@ -34,10 +34,10 @@ export default class ArweaveContract extends BaseContract {
 
   constructor(chainName: ChainName, storageType: StorageType, wallets: Wallets, userKey?: KeyInfo) {
     super(chainName, storageType, wallets);
-    this.worker = new AOWorker();
-    this.data = new AOData();
-    this.task = new AOTask();
-    this.fee = new AOFee();
+    this.worker = new AoWorker();
+    this.data = new AoData();
+    this.task = new AoTask();
+    this.fee = new AoFee();
     this.helper = new Helper();
     if (userKey) {
       this.userKey = userKey;

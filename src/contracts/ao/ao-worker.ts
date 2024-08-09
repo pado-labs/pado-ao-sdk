@@ -4,7 +4,7 @@ import type { nodeInfo } from '../../types/index';
 import { getMessageResultData } from './util/utils';
 
 
-export class AOWorker {
+export class AoWorker {
   constructor() {}
 
   /**

@@ -2,9 +2,9 @@ import { dryrun, message, result } from '@permaweb/aoconnect';
 import { DATA_REGISTRY_PROCESS_ID } from '../../config';
 import { type EncryptionSchema, type nodeInfo, type PolicyInfo } from '../../types/index';
 import { getMessageResultData } from './util/utils';
-import { AOWorker as Worker } from './AOWorker';
+import { AoWorker as Worker } from './ao-worker';
 
-export class AOData {
+export class AoData {
   contractInstance: any;
   /**
    * @notice Data Provider prepare to register confidential data to PADO Network.

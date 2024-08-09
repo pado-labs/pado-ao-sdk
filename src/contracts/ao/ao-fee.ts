@@ -2,7 +2,7 @@ import { dryrun } from '@permaweb/aoconnect';
 import { TASKS_PROCESS_ID } from '../../config';
 
 
-export  class AOFee {
+export  class AoFee {
   constructor() {}
 
   /**
