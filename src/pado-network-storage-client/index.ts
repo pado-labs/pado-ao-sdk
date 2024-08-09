@@ -1,6 +1,6 @@
 import { StorageType, WalletWithType } from '../types/index';
-import ArseedingStorage from './ArseedingStorage';
-import ArweaveStorage from './ArweaveStorage';
+import ArseedingStorage from './arseeding-storage';
+import ArweaveStorage from './arweave-storage';
 
 
 const StorageClient = {
@@ -10,9 +10,9 @@ const StorageClient = {
 export default class PadoNetworkStorageClient {
   private _client: any;
   storageType: StorageType;
-  constructor(storageType: StorageType = StorageType.ARWEAVE) {
+  constructor(storageType: StorageType = StorageType.ARWEAVE, wallet: WalletWithType) {
     this.storageType = storageType;
-    this._client = new StorageClient[storageType]();
+    this._client = new StorageClient[storageType](storageType,wallet);
   }
 
   /**
@@ -26,9 +26,8 @@ export default class PadoNetworkStorageClient {
    * @param wallet - An object representing the wallet used for the submission.
    * @returns A Promise that resolves to a string, typically a confirmation or response from the submission.
    */
-  async submitData(data: Uint8Array, wallet: WalletWithType): Promise<string> {
-    const res = await this._client.submitData(data, wallet);
-    return res;
+  async submitData(data: Uint8Array): Promise<string> {
+    return await this._client.submitData(data);
   }
 
   /**
@@ -41,7 +40,6 @@ export default class PadoNetworkStorageClient {
    * @returns {Promise<Uint8Array>} A promise that resolves to an array of bytes representing the data.
    */
   async getData(transactionId: string): Promise<Uint8Array> {
-    const res = await this._client.getData(transactionId);
-    return res;
+    return await this._client.getData(transactionId);
   }
 }

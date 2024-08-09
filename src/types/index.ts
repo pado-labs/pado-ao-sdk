@@ -159,3 +159,11 @@ export type WalletWithType = {
   walletType: 'metamask'|'arweave'
 }
 
+export type SupportedSymbols = 'AOCRED' | 'wAR' | 'AR' | 'ETH';
+
+
+export type ArseedingTagInfo = {
+  tag: string,
+  chainType: string
+}
+

@@ -1,9 +1,9 @@
 import { readFileSync } from 'node:fs';
 import { exit } from 'node:process';
 import './proxy.js';
-import PadoNetworkContractClient from '../PadoNetworkContractClient/index';
+import PadoNetworkContractClient from 'pado-network-contract-client/index';
 import { StorageType } from '../types';
-import Utils from '../Common/Utils';
+import Utils from 'common/utils';
 
 /**
  * Usage:
@@ -28,7 +28,7 @@ async function main() {
   };
 
   const padoNetworkClient = new PadoNetworkContractClient('ao', StorageType.ARWEAVE, wallets);
-  // submit a task to AO process
+  // submit a task to ao process
   const taskId = await padoNetworkClient.submitTask('',dataId);
   console.log(`TASKID=${taskId}`);
   // timeout is 10s

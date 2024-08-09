@@ -1,6 +1,6 @@
 import { StorageType, Wallets, WalletWithType } from '../types/index';
-import Utils from '../Common/Utils';
-import PadoNetworkStorageClient from '../PadoNetworkStorageClient';
+import Utils from '../common/utils';
+import PadoNetworkStorageClient from '../pado-network-storage-client';
 
 
 interface IBaseContract {
@@ -17,7 +17,7 @@ export default class BaseContract extends Utils implements IBaseContract {
   storageWallet: WalletWithType;
   constructor(chainName:any, storageType: StorageType, wallets:  Wallets) {
     super();
-    this.storage = new PadoNetworkStorageClient(storageType);
+    this.storage = new PadoNetworkStorageClient(storageType,wallets.storageWallet);
     this.storageType = this.storage.storageType;
     this.wallet = wallets.wallet;
     this.storageWallet = wallets.storageWallet;

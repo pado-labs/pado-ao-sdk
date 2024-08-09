@@ -1,5 +1,5 @@
 import { dryrun, message, result } from '@permaweb/aoconnect';
-import { NODEREGISTRY_PROCESS_ID } from '../../config';
+import { NODE_REGISTRY_PROCESS_ID } from '../../config';
 import type { nodeInfo } from '../../types/index';
 import { getMessageResultData } from './util/utils';
 
@@ -20,7 +20,7 @@ export class AOWorker {
    */
   async register_or_update(action: string, name: string, pk: string, desc: string, signer: any) {
     const msgId = await message({
-      process: NODEREGISTRY_PROCESS_ID,
+      process: NODE_REGISTRY_PROCESS_ID,
       tags: [
         { name: 'Action', value: action },
         { name: 'Name', value: name },
@@ -32,7 +32,7 @@ export class AOWorker {
 
     let Result = await result({
       message: msgId,
-      process: NODEREGISTRY_PROCESS_ID
+      process: NODE_REGISTRY_PROCESS_ID
     });
 
     const res = getMessageResultData(Result);
@@ -78,7 +78,7 @@ export class AOWorker {
    */
   async deleteNode(name: string, signer: any) {
     const msgId = await message({
-      process: NODEREGISTRY_PROCESS_ID,
+      process: NODE_REGISTRY_PROCESS_ID,
       tags: [
         { name: 'Action', value: 'Delete' },
         { name: 'Name', value: name }
@@ -88,7 +88,7 @@ export class AOWorker {
 
     let Result = await result({
       message: msgId,
-      process: NODEREGISTRY_PROCESS_ID
+      process: NODE_REGISTRY_PROCESS_ID
     });
 
     const res = getMessageResultData(Result);
@@ -103,7 +103,7 @@ export class AOWorker {
    */
   async nodes() {
     let { Messages } = await dryrun({
-      process: NODEREGISTRY_PROCESS_ID,
+      process: NODE_REGISTRY_PROCESS_ID,
       tags: [{ name: 'Action', value: 'Nodes' }]
     });
     const nodes = Messages[0].Data;
@@ -119,7 +119,7 @@ export class AOWorker {
    */
   async addWhiteList(addr: string, signer: any) {
     const msgId = await message({
-      process: NODEREGISTRY_PROCESS_ID,
+      process: NODE_REGISTRY_PROCESS_ID,
       tags: [
         { name: 'Action', value: 'AddWhiteList' },
         { name: 'Address', value: addr }
@@ -129,7 +129,7 @@ export class AOWorker {
 
     let Result = await result({
       message: msgId,
-      process: NODEREGISTRY_PROCESS_ID
+      process: NODE_REGISTRY_PROCESS_ID
     });
 
     const res = getMessageResultData(Result);

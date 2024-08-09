@@ -1,9 +1,9 @@
 import type { Address, Allowance, Bytes32, FeeTokenInfo, Uint256 } from '../../types/index';
-import BaseEVM from './BaseEVM';
+import BaseEvm from './base-evm';
 import {ChainName} from '../../types/index';
 import abiJson from './abi/feeMgt.json';
 
-export default class Fee extends BaseEVM {
+export default class Fee extends BaseEvm {
   
   feeTokens: FeeTokenInfo[] ;
   /**

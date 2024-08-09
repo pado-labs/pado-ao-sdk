@@ -10,10 +10,10 @@ import type {
   PriceInfoT
 } from '../../types/index';
 import abiJson from './abi/dataMgt.json';
-import BaseEVM from './BaseEVM';
+import BaseEvm from './base-evm';
 
 
-export default class Data extends BaseEVM {
+export default class Data extends BaseEvm {
   constructor(chainName: ChainName, wallet: any, address: string) {
     super(chainName, wallet,address);
     this._initContractInstance(abiJson);

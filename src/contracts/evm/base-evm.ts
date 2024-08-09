@@ -1,9 +1,8 @@
 import { ethers } from 'ethers';
-import { DATACONTRACTADDRESSES } from '../../config';
 import type { ChainName } from '../../types/index';
 
 
-export default class BaseEVM {
+export default class BaseEvm {
   contractInstance: any;
   contractAddress: string;
   wallet: any;
